@@ -13,3 +13,4 @@ Puzzles from [Advent of Code](https://adventofcode.com/) solved using Go.
 | Day | Go |
 |-----|----|
 | 1   | ** |
+| 2   | ** |
