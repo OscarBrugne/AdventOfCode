@@ -15,3 +15,4 @@ Puzzles from [Advent of Code](https://adventofcode.com/) solved using Go.
 | 1   | ** |
 | 2   | ** |
 | 3   | ** |
+| 4   | ** |
