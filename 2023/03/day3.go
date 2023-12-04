@@ -7,6 +7,17 @@ import (
 	"AdventOfCode/utils"
 )
 
+type Symbol struct {
+	iLine int
+	iCol  int
+}
+
+type Number struct {
+	iLine int
+	iCol  int
+	value int
+}
+
 func checkIfIsDigit(line string, index int) (bool, int) {
 	if index >= len(line) {
 		return false, 0
@@ -100,7 +111,7 @@ func Part1(input []string) int {
 
 func Part2(input []string) int {
 	res := 0
-	asteriskNumbers := map[[2]int][][3]int{}
+	asteriskNumbers := map[Symbol][]Number{}
 	for iLine, line := range input {
 		for iCol := 0; iCol < len(line); iCol++ {
 			isNumber, number := checkIfIsNumber(line, iCol)
@@ -110,8 +121,8 @@ func Part2(input []string) int {
 				iNumberEnd := iCol + NumberLen
 				isAdjacentToAnAsterisk, iLineSymbol, iColSymbol := checkIfIsAsteriskNumber(input, iLine, iNumberStart, iNumberEnd)
 				if isAdjacentToAnAsterisk {
-					key := [2]int{iLineSymbol, iColSymbol}
-					value := [3]int{iLine, iCol, number}
+					key := Symbol{iLineSymbol, iColSymbol}
+					value := Number{iLine, iCol, number}
 					asteriskNumbers[key] = append(asteriskNumbers[key], value)
 				}
 				iCol += NumberLen
@@ -120,7 +131,7 @@ func Part2(input []string) int {
 	}
 	for _, values := range asteriskNumbers {
 		if len(values) == 2 {
-			res += values[0][2] * values[1][2]
+			res += values[0].value * values[1].value
 		}
 	}
 	return res
