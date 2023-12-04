@@ -14,10 +14,10 @@ type Scratchcard struct {
 }
 
 func parseLine(line string) Scratchcard {
-	parts := strings.Split(line, ": ")
-	parts = strings.Split(parts[1], " | ")
-	winningNumbers := parseNumbersLine(parts[0])
-	scratchedNumbers := parseNumbersLine(parts[1])
+	parts := strings.Split(line, ":")
+	parts = strings.Split(parts[1], "|")
+	winningNumbers := parseStringToInts(parts[0])
+	scratchedNumbers := parseStringToInts(parts[1])
 	scratchcard := Scratchcard{
 		winningNumbers:   winningNumbers,
 		scratchedNumbers: scratchedNumbers,
@@ -25,17 +25,15 @@ func parseLine(line string) Scratchcard {
 	return scratchcard
 }
 
-func parseNumbersLine(numbersLine string) []int {
+func parseStringToInts(numbersLine string) []int {
 	numbers := []int{}
-	numbersParts := strings.Split(numbersLine, " ")
+	numbersParts := strings.Fields(numbersLine)
 	for _, numberStr := range numbersParts {
-		if numberStr != "" {
-			number, err := strconv.Atoi(numberStr)
-			if err != nil {
-				panic(err)
-			}
-			numbers = append(numbers, number)
+		number, err := strconv.Atoi(numberStr)
+		if err != nil {
+			panic(err)
 		}
+		numbers = append(numbers, number)
 	}
 	return numbers
 }
@@ -48,13 +46,24 @@ func calculatePoints(scratchcard Scratchcard) int {
 				if score == 0 {
 					score = 1
 				} else {
-					score += score
+					score *= 2
 				}
-
 			}
 		}
 	}
 	return score
+}
+
+func calculateMatchingNumbers(scratchcard Scratchcard) int {
+	numMatchingNumbers := 0
+	for _, scratchNumber := range scratchcard.scratchedNumbers {
+		for _, winningNumber := range scratchcard.winningNumbers {
+			if scratchNumber == winningNumber {
+				numMatchingNumbers++
+			}
+		}
+	}
+	return numMatchingNumbers
 }
 
 func Part1(input []string) int {
@@ -69,24 +78,19 @@ func Part1(input []string) int {
 
 func Part2(input []string) int {
 	res := 0
-	numCard := make([]int, len(input))
-	for i := range numCard {
-		numCard[i] = 1
+	numCards := make([]int, len(input))
+	for i := range numCards {
+		numCards[i] = 1
 	}
 	for i, line := range input {
 		scratchcard := parseLine(line)
-		score := 0
-		for _, scratchNumber := range scratchcard.scratchedNumbers {
-			for _, winningNumber := range scratchcard.winningNumbers {
-				if scratchNumber == winningNumber {
-					score++
-				}
-			}
+		numMatchingNumbers := calculateMatchingNumbers(scratchcard)
+		for j := i + 1; j < i+1+numMatchingNumbers; j++ {
+			numCards[j] += numCards[i]
 		}
-		for j := 0; j < score; j++ {
-			numCard[i+1+j] += numCard[i]
-		}
-		res += numCard[i]
+	}
+	for _, numCard := range numCards {
+		res += numCard
 	}
 	return res
 }
