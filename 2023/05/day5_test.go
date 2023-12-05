@@ -69,3 +69,16 @@ func TestParseInput(t *testing.T) {
 		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
 	}
 }
+
+func TestSplitOverlappingIntervals(t *testing.T) {
+	souces := []Interval{{0, 10}}
+	destinationMap := []RangeOfNumbers{{5, 5, 3}}
+	result := splitOverlappingIntervals(souces, destinationMap)
+	expected := []Interval{{0, 5}, {5, 8}, {8, 10}}
+	if len(result) != len(expected) {
+		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
+	}
+	if !reflect.DeepEqual(utils.NewSet[Interval](result...), utils.NewSet[Interval](expected...)) {
+		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
+	}
+}
