@@ -8,10 +8,10 @@ import (
 )
 
 var fileName string = "input_test.txt"
-var inputFile []string = utils.ReadFile(fileName)
+var input []string = utils.ReadFile(fileName)
 
 func TestPart1(t *testing.T) {
-	result := Part1(inputFile)
+	result := Part1(input)
 	expected := 13
 	if result != expected {
 		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
@@ -19,7 +19,7 @@ func TestPart1(t *testing.T) {
 }
 
 func TestPart2(t *testing.T) {
-	result := Part2(inputFile)
+	result := Part2(input)
 	expected := 30
 	if result != expected {
 		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
@@ -35,5 +35,17 @@ func TestParseLine(t *testing.T) {
 	}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
+	}
+}
+
+func BenchmarkPart1(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Part1(input)
+	}
+}
+
+func BenchmarkPart2(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Part2(input)
 	}
 }
