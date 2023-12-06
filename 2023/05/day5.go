@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"AdventOfCode/utils"
 )
@@ -179,6 +180,10 @@ func Part2(input []string) int {
 func main() {
 	fileName := "input.txt"
 	input := utils.ReadFile(fileName)
+	start1 := time.Now()
 	fmt.Println("Answer 1 : ", Part1(input))
+	fmt.Println(time.Since(start1))
+	start2 := time.Now()
 	fmt.Println("Answer 2 : ", Part2(input))
+	fmt.Println(time.Since(start2))
 }
