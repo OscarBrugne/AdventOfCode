@@ -7,11 +7,14 @@ import (
 	"AdventOfCode/utils"
 )
 
-var fileName string = "input_test.txt"
-var input []string = utils.ReadFile(fileName)
+var fileNameTest string = "input_test.txt"
+var inputTest []string = utils.ReadFile(fileNameTest)
+
+var fileNameDay string = "input.txt"
+var inputDay []string = utils.ReadFile(fileNameDay)
 
 func TestPart1(t *testing.T) {
-	result := Part1(input)
+	result := Part1(inputTest)
 	expected := 13
 	if result != expected {
 		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
@@ -19,7 +22,7 @@ func TestPart1(t *testing.T) {
 }
 
 func TestPart2(t *testing.T) {
-	result := Part2(input)
+	result := Part2(inputTest)
 	expected := 30
 	if result != expected {
 		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
@@ -40,12 +43,12 @@ func TestParseLine(t *testing.T) {
 
 func BenchmarkPart1(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		Part1(input)
+		Part1(inputDay)
 	}
 }
 
 func BenchmarkPart2(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		Part2(input)
+		Part2(inputDay)
 	}
 }
