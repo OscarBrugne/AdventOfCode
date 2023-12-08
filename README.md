@@ -16,6 +16,7 @@ Puzzles from [Advent of Code](https://adventofcode.com/) solved using Go.
 | 2   | ** |                                                                  |
 | 3   | ** |                                                                  |
 | 4   | ** |                                                                  |
-| 5   | ** | Calculation on intervals, function "splitOverlappingIntervals" to refactor                                                                      |
+| 5   | ** | Calculation on intervals, function "splitOverlappingIntervals" to refactor |
 | 6   | ** | Naive resolution, without calculating roots.                     |
 | 7   | ** |                                                                  |
+| 8   | ** |                                                                  |
