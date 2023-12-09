@@ -49,13 +49,13 @@ func lcm(a, b int) int {
 	return (a * b) / gcd(a, b)
 }
 
-func lcmSlice(ints []int) int {
-	if len(ints) == 0 {
+func lcmSlice(nums []int) int {
+	if len(nums) == 0 {
 		return 0
 	}
-	res := ints[0]
-	for i := 1; i < len(ints); i++ {
-		res = lcm(res, ints[i])
+	res := nums[0]
+	for i := 1; i < len(nums); i++ {
+		res = lcm(res, nums[i])
 	}
 	return res
 }
