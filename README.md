@@ -2,6 +2,8 @@
 
 Puzzles from [Advent of Code](https://adventofcode.com/) solved using Go.
 
+My goal is to resolve issues within the day of release. Then, I refactor my code in order to have clean code, even if it means losing slightly in performance.
+
 ## Commands
 
 - `cd <year>/<day>/` to navigate to a specific day's directory,
@@ -19,7 +21,7 @@ Execution time with :
 |-----|----|-----------|-----------|------------------------------------------------------------------|
 | 1   | ** | `0.054ms` | `2.06ms`  |                                                                  |
 | 2   | ** | `0.68ms`  | `0.75ms`  |                                                                  |
-| 3   | ** | `0.26ms`  | `0.42ms`  |                                                                  |
+| 3   | ** | `0.42ms`  | `0.55ms`  | Finds the numbers in the grid, then the symbols that are adjacent to them. |
 | 4   | ** | `0.53ms`  | `0.52ms`  |                                                                  |
 | 5   | ** | `0.12ms`  | `1.24ms`  | Using intervals, implementing the `splitOn` method to split the interval before shifting it. |
 | 6   | ** | `0.002ms` | `47.2ms`  | Naive resolution, without calculating roots or binary search.    |

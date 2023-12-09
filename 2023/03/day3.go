@@ -2,31 +2,32 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"AdventOfCode/utils"
 )
 
-type Symbol struct {
-	iLine int
-	iCol  int
+type Coord struct {
+	ILine int
+	ICol  int
 }
 
 type Number struct {
-	iLine int
-	iCol  int
-	value int
+	ILine int
+	ICol  int
+	Value int
 }
 
 func checkIfIsDigit(line string, index int) (bool, int) {
 	if index >= len(line) {
 		return false, 0
 	}
+
 	isDigit := ('0' <= line[index]) && (line[index] <= '9')
 	if isDigit {
 		return true, int(line[index] - '0')
 	}
+
 	return false, 0
 }
 
@@ -35,6 +36,7 @@ func checkIfIsNumber(line string, index int) (bool, int) {
 	if !isDigit {
 		return false, 0
 	}
+
 	number := 0
 	for isDigit {
 		number = number*10 + digit
@@ -44,95 +46,132 @@ func checkIfIsNumber(line string, index int) (bool, int) {
 	return true, number
 }
 
-func isSymbol(input []string, iLine int, iCol int) bool {
-	if (iLine < 0) || (iLine >= len(input)) {
+func isInBounds(input []string, iLine, iCol int) bool {
+	if iLine < 0 || iLine >= len(input) {
 		return false
 	}
 	line := input[iLine]
-	if (iCol < 0) || (iCol >= len(line)) {
-		return false
-	}
-	isDigit, _ := checkIfIsDigit(line, iCol)
-	isSymbol := (line[iCol] != '.') && !isDigit
-	return isSymbol
+	return iCol >= 0 && iCol < len(line)
 }
 
-func isNumberAdjacentToASymbol(input []string, iLine int, iNumberStart int, iNumberEnd int) bool {
-	for iLineSymbol := iLine - 1; iLineSymbol <= iLine+1; iLineSymbol++ {
-		for iColSymbol := iNumberStart - 1; iColSymbol < iNumberEnd+1; iColSymbol++ {
-			if isSymbol(input, iLineSymbol, iColSymbol) {
-				return true
-			}
-		}
+func isSymbol(input []string, iLine, iCol int) bool {
+	if !isInBounds(input, iLine, iCol) {
+		return false
 	}
-	return false
+
+	line := input[iLine]
+	isDigit, _ := checkIfIsDigit(line, iCol)
+	return line[iCol] != '.' && !isDigit
 }
 
 func isAsterisk(input []string, iLine int, iCol int) bool {
-	if (iLine < 0) || (iLine >= len(input)) {
+	if !isInBounds(input, iLine, iCol) {
 		return false
 	}
+
 	line := input[iLine]
-	if (iCol < 0) || (iCol >= len(line)) {
-		return false
-	}
 	return line[iCol] == '*'
 }
 
-func checkIfIsAsteriskNumber(input []string, iLine int, iNumberStart int, iNumberEnd int) (bool, int, int) {
+func isNumberAdjacentTo(
+	input []string,
+	iLine, iStartNum, iEndNum int,
+	checkAdjacent func(input []string, i, j int) bool,
+) (bool, []Coord) {
+	isAdjacent := false
+	coord := []Coord{}
 	for iLineSymbol := iLine - 1; iLineSymbol <= iLine+1; iLineSymbol++ {
-		for iColSymbol := iNumberStart - 1; iColSymbol < iNumberEnd+1; iColSymbol++ {
-			if isAsterisk(input, iLineSymbol, iColSymbol) {
-				return true, iLineSymbol, iColSymbol
+		for iColSymbol := iStartNum - 1; iColSymbol < iEndNum+1; iColSymbol++ {
+			if checkAdjacent(input, iLineSymbol, iColSymbol) {
+				isAdjacent = true
+				coord = append(coord, Coord{iLineSymbol, iColSymbol})
 			}
 		}
 	}
-	return false, 0, 0
+
+	return isAdjacent, coord
+}
+
+func isNumberAdjacentToASymbol(input []string, iLine int, iStartNum int, iEndNum int) bool {
+	res, _ := isNumberAdjacentTo(input, iLine, iStartNum, iEndNum, isSymbol)
+	return res
+}
+
+func isAnAsteriskNumber(input []string, iLine int, iStartNum int, iEndNum int) (bool, []Coord) {
+	return isNumberAdjacentTo(input, iLine, iStartNum, iEndNum, isAsterisk)
+}
+
+func lenInt(num int) int {
+	if num == 0 {
+		return 1
+	}
+	cnt := 0
+	for num != 0 {
+		num /= 10
+		cnt++
+	}
+	return cnt
 }
 
 func Part1(input []string) int {
 	res := 0
+
 	for iLine, line := range input {
-		for iCol := 0; iCol < len(line); iCol++ {
-			isNumber, number := checkIfIsNumber(line, iCol)
+		iCol := 0
+		for iCol < len(line) {
+			isNumber, value := checkIfIsNumber(line, iCol)
 			if isNumber {
-				numberLen := len(strconv.Itoa(number))
-				iNumberStart := iCol
-				iNumberEnd := iCol + numberLen
-				isAdjacentToASymbol := isNumberAdjacentToASymbol(input, iLine, iNumberStart, iNumberEnd)
+				numberLen := lenInt(value)
+				iStartNum := iCol
+				iEndNum := iCol + numberLen
+
+				isAdjacentToASymbol := isNumberAdjacentToASymbol(input, iLine, iStartNum, iEndNum)
 				if isAdjacentToASymbol {
-					res += number
+					res += value
 				}
+
 				iCol += numberLen
+			} else {
+				iCol++
 			}
 		}
 	}
+
 	return res
 }
 
 func Part2(input []string) int {
-	res := 0
-	asteriskNumbers := map[Symbol][]Number{}
+	asteriskNumbers := map[Coord][]Number{}
+
 	for iLine, line := range input {
-		for iCol := 0; iCol < len(line); iCol++ {
-			isNumber, number := checkIfIsNumber(line, iCol)
+		iCol := 0
+		for iCol < len(line) {
+			isNumber, value := checkIfIsNumber(line, iCol)
 			if isNumber {
-				NumberLen := len(strconv.Itoa(number))
-				iNumberStart := iCol
-				iNumberEnd := iCol + NumberLen
-				isAdjacentToAnAsterisk, iLineSymbol, iColSymbol := checkIfIsAsteriskNumber(input, iLine, iNumberStart, iNumberEnd)
+				NumberLen := lenInt(value)
+				iStartNum := iCol
+				iEndNum := iCol + NumberLen
+
+				isAdjacentToAnAsterisk, asteriks := isAnAsteriskNumber(input, iLine, iStartNum, iEndNum)
 				if isAdjacentToAnAsterisk {
-					key := Symbol{iLineSymbol, iColSymbol}
-					value := Number{iLine, iCol, number}
-					asteriskNumbers[key] = append(asteriskNumbers[key], value)
+					for _, asterik := range asteriks {
+						key := asterik
+						number := Number{iLine, iCol, value}
+						asteriskNumbers[key] = append(asteriskNumbers[key], number)
+					}
 				}
+
 				iCol += NumberLen
+			} else {
+				iCol++
 			}
 		}
 	}
+
+	res := 0
 	for _, values := range asteriskNumbers {
 		if len(values) == 2 {
-			res += values[0].value * values[1].value
+			res += values[0].Value * values[1].Value
 		}
 	}
 	return res
@@ -141,9 +180,11 @@ func Part2(input []string) int {
 func main() {
 	fileName := "input.txt"
 	input := utils.ReadFile(fileName)
+
 	start1 := time.Now()
 	fmt.Println("Answer 1 : ", Part1(input))
 	fmt.Println(time.Since(start1))
+
 	start2 := time.Now()
 	fmt.Println("Answer 2 : ", Part2(input))
 	fmt.Println(time.Since(start2))
