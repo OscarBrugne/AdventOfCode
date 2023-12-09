@@ -2,8 +2,6 @@
 
 Puzzles from [Advent of Code](https://adventofcode.com/) solved using Go.
 
-My goal is to resolve issues within the day of release. Then, I refactor my code in order to have clean code, even if it means losing slightly in performance.
-
 ## Commands
 
 - `cd <year>/<day>/` to navigate to a specific day's directory,
@@ -13,6 +11,8 @@ My goal is to resolve issues within the day of release. Then, I refactor my code
 
 ## 2023
 
+My goal is to resolve the problems within the day of release. Then, I refactor my code in order to have clean code, even if it means losing slightly in performance.
+
 Execution time with :
 - goarch: `amd64`
 - cpu: `AMD Ryzen 5 3500U with Radeon Vega Mobile Gfx`
@@ -20,7 +20,7 @@ Execution time with :
 | Day | Go | Part1     | Part2     | Comment                                                          |
 |-----|----|-----------|-----------|------------------------------------------------------------------|
 | 1   | ** | `0.054ms` | `2.06ms`  |                                                                  |
-| 2   | ** | `0.68ms`  | `0.75ms`  |                                                                  |
+| 2   | ** | `0.44ms`  | `0.47ms`  |                                                                  |
 | 3   | ** | `0.42ms`  | `0.55ms`  | Finds the numbers in the grid, then the symbols that are adjacent to them. |
 | 4   | ** | `0.53ms`  | `0.52ms`  |                                                                  |
 | 5   | ** | `0.12ms`  | `1.24ms`  | Using intervals, implementing the `splitOn` method to split the interval before shifting it. |
