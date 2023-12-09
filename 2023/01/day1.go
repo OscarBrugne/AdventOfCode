@@ -27,6 +27,7 @@ func findDigit(line string, start int, end int, step int, isSpelledDigitAllowed 
 		if isDigit {
 			return int(char - '0')
 		}
+
 		if isSpelledDigitAllowed {
 			for word, value := range spelledDigits {
 				isSpelledDigit := (i+len(word) <= len(line)) && (line[i:i+len(word)] == word)
@@ -35,23 +36,25 @@ func findDigit(line string, start int, end int, step int, isSpelledDigitAllowed 
 				}
 			}
 		}
+
 		i += step
 	}
+
 	return 0
 }
 
-func firstDigit(line string, isPart2 bool) int {
-	return findDigit(line, 0, len(line), 1, isPart2)
+func firstDigit(line string, isSpelledDigitAllowed bool) int {
+	return findDigit(line, 0, len(line), 1, isSpelledDigitAllowed)
 }
 
-func lastDigit(line string, isPart2 bool) int {
-	return findDigit(line, len(line)-1, -1, -1, isPart2)
+func lastDigit(line string, isSpelledDigitAllowed bool) int {
+	return findDigit(line, len(line)-1, -1, -1, isSpelledDigitAllowed)
 }
 
-func calculateResult(input []string, isPart2 bool) int {
+func calculateResult(input []string, isSpelledDigitAllowed bool) int {
 	res := 0
 	for _, line := range input {
-		value := 10*firstDigit(line, isPart2) + lastDigit(line, isPart2)
+		value := 10*firstDigit(line, isSpelledDigitAllowed) + lastDigit(line, isSpelledDigitAllowed)
 		res += value
 	}
 	return res
@@ -68,9 +71,11 @@ func Part2(input []string) int {
 func main() {
 	fileName := "input.txt"
 	input := utils.ReadFile(fileName)
+
 	start1 := time.Now()
 	fmt.Println("Answer 1 : ", Part1(input))
 	fmt.Println(time.Since(start1))
+
 	start2 := time.Now()
 	fmt.Println("Answer 2 : ", Part2(input))
 	fmt.Println(time.Since(start2))

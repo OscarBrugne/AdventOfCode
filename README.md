@@ -19,7 +19,7 @@ Execution time with :
 
 | Day | Go | Part1     | Part2     | Comment                                                          |
 |-----|----|-----------|-----------|------------------------------------------------------------------|
-| 1   | ** | `0.054ms` | `2.06ms`  |                                                                  |
+| 1   | ** | `0.039ms` | `1.51ms`  |                                                                  |
 | 2   | ** | `0.44ms`  | `0.47ms`  |                                                                  |
 | 3   | ** | `0.42ms`  | `0.55ms`  | Finds the numbers in the grid, then the symbols that are adjacent to them. |
 | 4   | ** | `0.53ms`  | `0.52ms`  |                                                                  |
