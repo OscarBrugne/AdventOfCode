@@ -25,25 +25,6 @@ func TestIntInterval_Equal(t *testing.T) {
 	}
 }
 
-func TestSortIntIntervals(t *testing.T) {
-	intervals := []IntInterval{
-		{Start: 5, End: 1},
-		{Start: 1, End: 4},
-		{Start: 2, End: 8},
-		{Start: 2, End: 6},
-	}
-	expected := []IntInterval{
-		{Start: 1, End: 4},
-		{Start: 2, End: 6},
-		{Start: 2, End: 8},
-		{Start: 5, End: 1},
-	}
-	SortIntIntervals(intervals)
-	if !reflect.DeepEqual(intervals, expected) {
-		t.Errorf("Intervals were not sorted as expected, got: %v, want: %v.", intervals, expected)
-	}
-}
-
 func TestIsIn(t *testing.T) {
 	intervals := []IntInterval{
 		{Start: 1, End: 5},
@@ -131,6 +112,55 @@ func TestDisjointUnion(t *testing.T) {
 	result = interval1.DisjointUnion(interval3)
 	if len(result) != 2 {
 		t.Errorf("Expected disjoint intervals for intersecting intervals, got: %v.", result)
+	}
+}
+
+func TestSplitOn(t *testing.T) {
+	ab := IntInterval{2, 5}
+	cd := IntInterval{5, 10}
+	inter, exter := ab.splitOn(cd)
+	expectedInter := IntInterval{}
+	expectedExter := []IntInterval{{2, 5}}
+
+	if inter != expectedInter {
+		t.Errorf("Intersection is incorrect, got: %v, want: %v.", inter, expectedInter)
+	}
+
+	if !reflect.DeepEqual(exter, expectedExter) {
+		t.Errorf("External part is incorrect, got: %v, want: %v.", exter, expectedExter)
+	}
+
+	ab = IntInterval{2, 10}
+	cd = IntInterval{5, 7}
+	inter, exter = ab.splitOn(cd)
+	expectedInter = IntInterval{5, 7}
+	expectedExter = []IntInterval{{2, 5}, {7, 10}}
+
+	if inter != expectedInter {
+		t.Errorf("Intersection is incorrect, got: %v, want: %v.", inter, expectedInter)
+	}
+
+	if !reflect.DeepEqual(exter, expectedExter) {
+		t.Errorf("External part is incorrect, got: %v, want: %v.", exter, expectedExter)
+	}
+}
+
+func TestSortIntIntervals(t *testing.T) {
+	intervals := []IntInterval{
+		{Start: 5, End: 1},
+		{Start: 1, End: 4},
+		{Start: 2, End: 8},
+		{Start: 2, End: 6},
+	}
+	expected := []IntInterval{
+		{Start: 1, End: 4},
+		{Start: 2, End: 6},
+		{Start: 2, End: 8},
+		{Start: 5, End: 1},
+	}
+	SortIntIntervals(intervals)
+	if !reflect.DeepEqual(intervals, expected) {
+		t.Errorf("Intervals were not sorted as expected, got: %v, want: %v.", intervals, expected)
 	}
 }
 

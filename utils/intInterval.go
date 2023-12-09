@@ -10,7 +10,7 @@ type IntInterval struct{ Start, End int }
 
 type IntIntervalOrIntIntervals interface{}
 
-var EmptyIntInterval = IntInterval{0, 0}
+var EmptyIntInterval = IntInterval{}
 
 func (ab IntInterval) String() string {
 	return fmt.Sprintf("[%d, %d[", ab.Start, ab.End)
@@ -104,6 +104,30 @@ func (ab IntInterval) DisjointUnion(cd IntInterval) []IntInterval {
 		disjointUnion = append(disjointUnion, IntInterval{d, b})
 	}
 	return disjointUnion
+}
+
+func (ab IntInterval) splitOn(cd IntInterval) (inter IntInterval, exter []IntInterval) {
+	a, b := ab.Start, ab.End
+	c, d := cd.Start, cd.End
+
+	isDisjoint := b <= c || d <= a
+	if isDisjoint {
+		exter = append(exter, ab)
+		return
+	}
+
+	inter = IntInterval{max(a, c), min(b, d)}
+
+	if a < c {
+		before := IntInterval{a, c}
+		exter = append(exter, before)
+	}
+	if b > d {
+		after := IntInterval{d, b}
+		exter = append(exter, after)
+	}
+
+	return
 }
 
 func SortIntIntervals(intervals []IntInterval) {

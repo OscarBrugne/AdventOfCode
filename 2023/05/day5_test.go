@@ -43,8 +43,8 @@ func TestParseInput(t *testing.T) {
 
 	result := parseInput(input)
 	expected := Almanac{
-		seeds: []int{79, 14, 55, 13},
-		conversionMaps: [][]RangeOfNumbers{
+		Seeds: []int{79, 14, 55, 13},
+		ConvMaps: [][]ConvRule{
 			{
 				{50, 98, 2},
 				{52, 50, 48},
@@ -59,16 +59,33 @@ func TestParseInput(t *testing.T) {
 	}
 }
 
-func TestSplitOverlappingIntervals(t *testing.T) {
-	souces := []Interval{{0, 10}}
-	destinationMap := []RangeOfNumbers{{5, 5, 3}}
-	result := splitOverlappingIntervals(souces, destinationMap)
-	expected := []Interval{{0, 5}, {5, 8}, {8, 10}}
-	if len(result) != len(expected) {
-		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
+func TestSplitOn(t *testing.T) {
+	ab := Interval{2, 5}
+	cd := Interval{5, 10}
+	inter, exter := ab.splitOn(cd)
+	expectedInter := Interval{}
+	expectedExter := []Interval{{2, 5}}
+
+	if inter != expectedInter {
+		t.Errorf("Intersection is incorrect, got: %v, want: %v.", inter, expectedInter)
 	}
-	if !reflect.DeepEqual(utils.NewSet[Interval](result...), utils.NewSet[Interval](expected...)) {
-		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
+
+	if !reflect.DeepEqual(exter, expectedExter) {
+		t.Errorf("External part is incorrect, got: %v, want: %v.", exter, expectedExter)
+	}
+
+	ab = Interval{2, 10}
+	cd = Interval{5, 7}
+	inter, exter = ab.splitOn(cd)
+	expectedInter = Interval{5, 7}
+	expectedExter = []Interval{{2, 5}, {7, 10}}
+
+	if inter != expectedInter {
+		t.Errorf("Intersection is incorrect, got: %v, want: %v.", inter, expectedInter)
+	}
+
+	if !reflect.DeepEqual(exter, expectedExter) {
+		t.Errorf("External part is incorrect, got: %v, want: %v.", exter, expectedExter)
 	}
 }
 

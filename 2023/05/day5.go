@@ -9,52 +9,85 @@ import (
 	"AdventOfCode/utils"
 )
 
-type RangeOfNumbers struct {
-	destinationStart int
-	sourceStart      int
-	lenght           int
+type Interval struct {
+	Start int
+	End   int
+}
+
+var EmptyInterval = Interval{}
+
+func (ab Interval) splitOn(cd Interval) (inter Interval, exter []Interval) {
+	a, b := ab.Start, ab.End
+	c, d := cd.Start, cd.End
+
+	isDisjoint := b <= c || d <= a
+	if isDisjoint {
+		exter = append(exter, ab)
+		return
+	}
+
+	inter = Interval{max(a, c), min(b, d)}
+
+	if a < c {
+		before := Interval{a, c}
+		exter = append(exter, before)
+	}
+	if b > d {
+		after := Interval{d, b}
+		exter = append(exter, after)
+	}
+
+	return
+}
+
+type ConvRule struct {
+	DestStart   int
+	SourceStart int
+	Length      int
 }
 
 type Almanac struct {
-	seeds          []int
-	conversionMaps [][]RangeOfNumbers
-}
-
-type Interval struct {
-	start int
-	end   int
+	Seeds    []int
+	ConvMaps [][]ConvRule
 }
 
 func parseInput(input []string) Almanac {
-	seeds := parseSeedsToInts(input[0])
-	conversionMaps := [][]RangeOfNumbers{}
+	seedsLine := strings.Split(input[0], ":")[1]
+	seeds := parseStringToInts(seedsLine)
+
+	convMaps := [][]ConvRule{}
 	i := 3
-	conversionMap := []RangeOfNumbers{}
+	convMap := []ConvRule{}
 	for i < len(input) {
 		line := input[i]
 		if line == "" {
-			conversionMaps = append(conversionMaps, conversionMap)
-			conversionMap = []RangeOfNumbers{}
+			convMaps = append(convMaps, convMap)
+			convMap = []ConvRule{}
 			i += 2
 		} else {
-			rangeNumbers := parseStringToInts(line)
-			rangeOfNumbers := RangeOfNumbers{
-				rangeNumbers[0],
-				rangeNumbers[1],
-				rangeNumbers[2],
+			nums := parseStringToInts(line)
+			convRule := ConvRule{
+				nums[0],
+				nums[1],
+				nums[2],
 			}
-			conversionMap = append(conversionMap, rangeOfNumbers)
+			convMap = append(convMap, convRule)
 			i++
 		}
 	}
-	conversionMaps = append(conversionMaps, conversionMap)
-	almanac := Almanac{seeds, conversionMaps}
+	convMaps = append(convMaps, convMap)
+
+	almanac := Almanac{
+		Seeds:    seeds,
+		ConvMaps: convMaps,
+	}
 	return almanac
 }
 
 func parseStringToInts(numbersLine string) []int {
 	numbers := []int{}
 	numbersParts := strings.Fields(numbersLine)
+
 	for _, numberStr := range numbersParts {
 		number, err := strconv.Atoi(numberStr)
 		if err != nil {
@@ -62,84 +95,66 @@ func parseStringToInts(numbersLine string) []int {
 		}
 		numbers = append(numbers, number)
 	}
+
 	return numbers
 }
 
-func parseSeedsToInts(seedsLine string) []int {
-	numbersLine := strings.Split(seedsLine, ":")[1]
-	seeds := parseStringToInts(numbersLine)
-	return seeds
-}
-
-func convertSourceToDestination(source int, destinationMap []RangeOfNumbers) int {
-	for _, rangeOfNumber := range destinationMap {
-		sourceNoOffset := source - rangeOfNumber.sourceStart
-		if sourceNoOffset >= 0 && sourceNoOffset < rangeOfNumber.lenght {
-			return sourceNoOffset + rangeOfNumber.destinationStart
+func convertSourceToDestination(source int, convMap []ConvRule) int {
+	for _, rule := range convMap {
+		if (rule.SourceStart <= source) && (source < rule.SourceStart+rule.Length) {
+			shift := rule.DestStart - rule.SourceStart
+			return source + shift
 		}
 	}
 	return source
 }
 
-func splitOverlappingIntervals(sources []Interval, destinationMap []RangeOfNumbers) []Interval {
-	overlappingSources := make([]Interval, len(sources))
-	copy(overlappingSources, sources)
-	nonOverlappingSources := []Interval{}
-	for len(overlappingSources) > 0 {
-		source := overlappingSources[0]
-		overlappingSources = overlappingSources[1:]
-		isSplit := false
-		i := 0
-		for !isSplit && i < len(destinationMap) {
-			rangeOfNumber := destinationMap[i]
-			rangeSource := Interval{rangeOfNumber.sourceStart, rangeOfNumber.sourceStart + rangeOfNumber.lenght}
-			intersectionStart := max(source.start, rangeSource.start)
-			intersectionEnd := min(source.end, rangeSource.end)
-			isOverlapping := intersectionStart < intersectionEnd
-			if isOverlapping {
-				nonOverlappingSources = append(nonOverlappingSources, Interval{intersectionStart, intersectionEnd})
-				if source.start < rangeSource.start {
-					overlappingSources = append(overlappingSources, Interval{source.start, rangeSource.start})
-				}
-				if source.end > rangeSource.end {
-					overlappingSources = append(overlappingSources, Interval{rangeSource.end, source.end})
-				}
-				isSplit = true
-			}
-			i++
-		}
-		if !isSplit {
-			nonOverlappingSources = append(nonOverlappingSources, source)
-		}
-	}
-	return nonOverlappingSources
-}
+func convertSourceToDestinations(source Interval, convMap []ConvRule) []Interval {
+	sources := []Interval{source}
+	destinations := []Interval{}
 
-func convertSourceToDestination2(source Interval, destinationMap []RangeOfNumbers) Interval {
-	for _, rangeOfNumber := range destinationMap {
-		rangeOfNumberSourceEnd := rangeOfNumber.sourceStart + rangeOfNumber.lenght
-		if source.start >= rangeOfNumber.sourceStart && source.end <= rangeOfNumberSourceEnd {
-			shift := rangeOfNumber.destinationStart - rangeOfNumber.sourceStart
-			return Interval{
-				start: source.start + shift,
-				end:   source.end + shift,
+	for _, rule := range convMap {
+		newSources := []Interval{}
+		for len(sources) > 0 {
+			currentSource := sources[0]
+			sources = sources[1:]
+			ruleSource := Interval{
+				Start: rule.SourceStart,
+				End:   rule.SourceStart + rule.Length,
+			}
+
+			inter, exter := currentSource.splitOn(ruleSource)
+
+			newSources = append(newSources, exter...)
+			if inter != EmptyInterval {
+				shift := rule.DestStart - rule.SourceStart
+				interShifted := Interval{
+					Start: inter.Start + shift,
+					End:   inter.End + shift,
+				}
+				destinations = append(destinations, interShifted)
 			}
 		}
+		sources = append(sources, newSources...)
 	}
-	return source
+
+	destinations = append(destinations, sources...)
+	return destinations
 }
 
 func Part1(input []string) int {
 	almanac := parseInput(input)
-	sources := almanac.seeds
-	for _, destinationMap := range almanac.conversionMaps {
+
+	sources := almanac.Seeds
+	for _, convMap := range almanac.ConvMaps {
 		destinations := make([]int, len(sources))
 		for i, source := range sources {
-			destination := convertSourceToDestination(source, destinationMap)
+			destination := convertSourceToDestination(source, convMap)
 			destinations[i] = destination
 		}
 		sources = destinations
 	}
+
 	min := sources[0]
 	for _, value := range sources {
 		if value < min {
@@ -151,27 +166,29 @@ func Part1(input []string) int {
 
 func Part2(input []string) int {
 	almanac := parseInput(input)
+
 	sources := []Interval{}
-	for i := 0; i < len(almanac.seeds); i += 2 {
-		sourceStart := almanac.seeds[i]
-		sourceLenght := almanac.seeds[i+1]
-		sourceEnd := sourceStart + sourceLenght
+	for i := 0; i < len(almanac.Seeds); i += 2 {
+		sourceStart := almanac.Seeds[i]
+		sourceLength := almanac.Seeds[i+1]
+		sourceEnd := sourceStart + sourceLength
 		source := Interval{sourceStart, sourceEnd}
 		sources = append(sources, source)
 	}
-	for _, destinationMap := range almanac.conversionMaps {
-		nonOverlappingSources := splitOverlappingIntervals(sources, destinationMap)
+
+	for _, convMap := range almanac.ConvMaps {
 		destinations := []Interval{}
-		for _, source := range nonOverlappingSources {
-			destination := convertSourceToDestination2(source, destinationMap)
-			destinations = append(destinations, destination)
+		for _, source := range sources {
+			convDestinations := convertSourceToDestinations(source, convMap)
+			destinations = append(destinations, convDestinations...)
 		}
 		sources = destinations
 	}
-	min := sources[0].start
+
+	min := sources[0].Start
 	for _, interval := range sources {
-		if interval.start < min {
-			min = interval.start
+		if interval.Start < min {
+			min = interval.Start
 		}
 	}
 	return min
@@ -180,9 +197,11 @@ func Part2(input []string) int {
 func main() {
 	fileName := "input.txt"
 	input := utils.ReadFile(fileName)
+
 	start1 := time.Now()
 	fmt.Println("Answer 1 : ", Part1(input))
 	fmt.Println(time.Since(start1))
+
 	start2 := time.Now()
 	fmt.Println("Answer 2 : ", Part2(input))
 	fmt.Println(time.Since(start2))
