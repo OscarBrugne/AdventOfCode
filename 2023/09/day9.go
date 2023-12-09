@@ -40,38 +40,57 @@ func allZeros(nums []int) bool {
 	return true
 }
 
+func calculateExtrapolations(history []int) [][]int {
+	extrapolationsSlices := [][]int{}
+	extrapolationsSlices = append(extrapolationsSlices, history)
+
+	i := 0
+	for (i < len(history)-1) && !allZeros(extrapolationsSlices[i]) {
+		i++
+		extrapolationsSlices = append(extrapolationsSlices, []int{})
+		previousExtrapolations := extrapolationsSlices[i-1]
+		for j := 1; j < len(previousExtrapolations); j++ {
+			extrapolation := previousExtrapolations[j] - previousExtrapolations[j-1]
+			extrapolationsSlices[i] = append(extrapolationsSlices[i], extrapolation)
+		}
+	}
+
+	return extrapolationsSlices
+}
+
 func Part1(input []string) int {
 	histories := parseInput(input)
 	res := 0
 
 	for _, history := range histories {
-		extrapolationsSlices := [][]int{}
-		extrapolationsSlices = append(extrapolationsSlices, history)
+		extrapolationsSlices := calculateExtrapolations(history)
 
-		i := 0
-		for !allZeros(extrapolationsSlices[i]) {
-			i++
-			extrapolationsSlices = append(extrapolationsSlices, []int{})
-			previousExtrapolations := extrapolationsSlices[i-1]
-			for j := 1; j < len(previousExtrapolations); j++ {
-				extrapolation := previousExtrapolations[j] - previousExtrapolations[j-1]
-				extrapolationsSlices[i] = append(extrapolationsSlices[i], extrapolation)
-			}
+		futurePrediction := 0
+		for i := len(extrapolationsSlices) - 1; i > -1; i-- {
+			futurePrediction = extrapolationsSlices[i][len(extrapolationsSlices[i])-1] + futurePrediction
 		}
 
-		prediction := 0
-		for i := 0; i < len(extrapolationsSlices); i++ {
-			prediction += extrapolationsSlices[i][len(extrapolationsSlices[i])-1]
-		}
-
-		res += prediction
+		res += futurePrediction
 	}
 
 	return res
 }
 
 func Part2(input []string) int {
+	histories := parseInput(input)
 	res := 0
+
+	for _, history := range histories {
+		extrapolationsSlices := calculateExtrapolations(history)
+
+		pastPrediction := 0
+		for i := len(extrapolationsSlices) - 1; i > -1; i-- {
+			pastPrediction = extrapolationsSlices[i][0] - pastPrediction
+		}
+
+		res += pastPrediction
+	}
+
 	return res
 }
 
