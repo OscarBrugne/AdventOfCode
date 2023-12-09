@@ -22,7 +22,7 @@ Execution time with :
 | 3   | ** | `0.26ms`  | `0.42ms`  |                                                                  |
 | 4   | ** | `0.79ms`  | `0.71ms`  |                                                                  |
 | 5   | ** | `0.13ms`  | `0.27ms`  | Calculation on intervals, function "splitOverlappingIntervals" to refactor |
-| 6   | ** | `0.002ms` | `66.2ms`  | Naive resolution, without calculating roots.                     |
-| 7   | ** | `7.35ms`  | `7.59ms`  | Use '*' instead of 'J' to represent jokers.                   |
+| 6   | ** | `0.002ms` | `47.2ms`  | Naive resolution, without calculating roots.                     |
+| 7   | ** | `7.35ms`  | `7.59ms`  | Use '*' instead of 'J' to represent jokers.                      |
 | 8   | ** | `0.98ms`  | `3.96ms`  | Using LCM (least common multiple) (doesn't work for general inputs, works here because the cycle length on each path is the same.) |
 | 9   | ** | `1.20ms`  | `1.21ms`  |                                                                  |
