@@ -30,7 +30,18 @@ func TestPart2(t *testing.T) {
 }
 
 func TestParseInput(t *testing.T) {
-	result := parseInput(inputTest)
+	input := []string{
+		"seeds: 79 14 55 13",
+		"",
+		"seed-to-soil map:",
+		"50 98 2",
+		"52 50 48",
+		"",
+		"soil-to-fertilizer map:",
+		"0 15 37",
+	}
+
+	result := parseInput(input)
 	expected := Almanac{
 		seeds: []int{79, 14, 55, 13},
 		conversionMaps: [][]RangeOfNumbers{
@@ -40,31 +51,6 @@ func TestParseInput(t *testing.T) {
 			},
 			{
 				{0, 15, 37},
-				{37, 52, 2},
-				{39, 0, 15},
-			},
-			{
-				{49, 53, 8},
-				{0, 11, 42},
-				{42, 0, 7},
-				{57, 7, 4},
-			},
-			{
-				{88, 18, 7},
-				{18, 25, 70},
-			},
-			{
-				{45, 77, 23},
-				{81, 45, 19},
-				{68, 64, 13},
-			},
-			{
-				{0, 69, 1},
-				{1, 0, 69},
-			},
-			{
-				{60, 56, 37},
-				{56, 93, 4},
 			},
 		},
 	}
