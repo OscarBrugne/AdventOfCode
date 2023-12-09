@@ -20,7 +20,7 @@ Execution time with :
 | 1   | ** | `0.054ms` | `2.06ms`  |                                                                  |
 | 2   | ** | `0.68ms`  | `0.75ms`  |                                                                  |
 | 3   | ** | `0.26ms`  | `0.42ms`  |                                                                  |
-| 4   | ** | `0.79ms`  | `0.71ms`  |                                                                  |
+| 4   | ** | `0.53ms`  | `0.52ms`  |                                                                  |
 | 5   | ** | `0.12ms`  | `1.24ms`  | Using intervals, implementing the `splitOn` method to split the interval before shifting it. |
 | 6   | ** | `0.002ms` | `47.2ms`  | Naive resolution, without calculating roots or binary search.    |
 | 7   | ** | `7.35ms`  | `7.59ms`  | Use '*' instead of 'J' to represent jokers.                      |

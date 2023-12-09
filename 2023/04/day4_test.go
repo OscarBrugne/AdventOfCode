@@ -32,9 +32,9 @@ func TestPart2(t *testing.T) {
 func TestParseLine(t *testing.T) {
 	inputLine := "Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53"
 	result := parseLine(inputLine)
-	expected := Scratchcard{
-		winningNumbers:   []int{41, 48, 83, 86, 17},
-		scratchedNumbers: []int{83, 86, 6, 31, 17, 9, 48, 53},
+	expected := Card{
+		WinningNumbers:   []int{41, 48, 83, 86, 17},
+		ScratchedNumbers: []int{83, 86, 6, 31, 17, 9, 48, 53},
 	}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
