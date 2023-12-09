@@ -31,10 +31,12 @@ func parseInput(input []string) Network {
 
 func parseLine(line string) (head string, children [2]string) {
 	parts := strings.Split(line, " = ")
+
 	head = parts[0]
 	childrenTrim := strings.Trim(parts[1], "()")
 	childrenParts := strings.Split(childrenTrim, ", ")
 	children = [2]string{childrenParts[0], childrenParts[1]}
+
 	return head, children
 }
 
@@ -53,10 +55,12 @@ func lcmSlice(nums []int) int {
 	if len(nums) == 0 {
 		return 0
 	}
+
 	res := nums[0]
 	for i := 1; i < len(nums); i++ {
 		res = lcm(res, nums[i])
 	}
+
 	return res
 }
 
@@ -66,19 +70,19 @@ func Part1(input []string) int {
 	end := "ZZZ"
 
 	element := start
-	i := 0
+	step := 0
 	instructionsLenght := len(network.Instructions)
 	for element != end {
-		instruction := network.Instructions[i%instructionsLenght]
+		instruction := network.Instructions[step%instructionsLenght]
 		if instruction == 'L' {
 			element = network.Nodes[element][0]
 		} else {
 			element = network.Nodes[element][1]
 		}
-		i++
+		step++
 	}
 
-	return i
+	return step
 }
 
 func Part2(input []string) int {

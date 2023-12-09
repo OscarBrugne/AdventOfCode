@@ -39,7 +39,6 @@ func TestParseInput(t *testing.T) {
 		"AAA = (BBB, CCC)",
 		"BBB = (CCC, AAA)",
 	}
-
 	result := parseInput(input)
 	expected := Network{
 		Instructions: "RL",

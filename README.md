@@ -24,5 +24,5 @@ Execution time with :
 | 5   | ** | `0.13ms`  | `0.27ms`  | Calculation on intervals, function "splitOverlappingIntervals" to refactor |
 | 6   | ** | `0.002ms` | `66.2ms`  | Naive resolution, without calculating roots.                     |
 | 7   | ** | `10.2ms`  | `12.8ms`  |                                                                  |
-| 8   | ** | `0.98ms`  | `5.06ms`  | Using LCM (least common multiple) (doesn't work for general inputs, works here because the cycle length on each path is the same.) |
+| 8   | ** | `0.98ms`  | `3.96ms`  | Using LCM (least common multiple) (doesn't work for general inputs, works here because the cycle length on each path is the same.) |
 | 9   | ** | `1.20ms`  | `1.21ms`  |                                                                  |
