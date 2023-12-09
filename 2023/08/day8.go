@@ -35,7 +35,7 @@ func parseLine(line string) (head string, children [2]string) {
 	childrenTrim := strings.Trim(parts[1], "()")
 	childrenParts := strings.Split(childrenTrim, ", ")
 	children = [2]string{childrenParts[0], childrenParts[1]}
-	return
+	return head, children
 }
 
 func gcd(a, b int) int {
@@ -49,36 +49,36 @@ func lcm(a, b int) int {
 	return (a * b) / gcd(a, b)
 }
 
-func lcmSlice(nums []int) int {
-	if len(nums) == 0 {
+func lcmSlice(ints []int) int {
+	if len(ints) == 0 {
 		return 0
 	}
-	result := nums[0]
-	for i := 1; i < len(nums); i++ {
-		result = lcm(result, nums[i])
+	res := ints[0]
+	for i := 1; i < len(ints); i++ {
+		res = lcm(res, ints[i])
 	}
-	return result
+	return res
 }
 
 func Part1(input []string) int {
-	res := 0
 	network := parseInput(input)
 	start := "AAA"
 	end := "ZZZ"
 
 	element := start
+	i := 0
+	instructionsLenght := len(network.Instructions)
 	for element != end {
-		for _, instruction := range network.Instructions {
-			if instruction == 'L' {
-				element = network.Nodes[element][0]
-			} else {
-				element = network.Nodes[element][1]
-			}
-			res++
+		instruction := network.Instructions[i%instructionsLenght]
+		if instruction == 'L' {
+			element = network.Nodes[element][0]
+		} else {
+			element = network.Nodes[element][1]
 		}
+		i++
 	}
 
-	return res
+	return i
 }
 
 func Part2(input []string) int {
@@ -93,18 +93,18 @@ func Part2(input []string) int {
 	}
 
 	steps := make([]int, len(starts))
+	instructionsLenght := len(network.Instructions)
 	for i := 0; i < len(starts); i++ {
 		element := starts[i]
 		lastIndex := len(element) - 1
 		for element[lastIndex] != 'Z' {
-			for _, instruction := range network.Instructions {
-				if instruction == 'L' {
-					element = network.Nodes[element][0]
-				} else {
-					element = network.Nodes[element][1]
-				}
-				steps[i]++
+			instruction := network.Instructions[steps[i]%instructionsLenght]
+			if instruction == 'L' {
+				element = network.Nodes[element][0]
+			} else {
+				element = network.Nodes[element][1]
 			}
+			steps[i]++
 		}
 	}
 
