@@ -18,6 +18,16 @@ type Grid struct {
 	Data   map[Coord]byte
 }
 
+type Direction int
+
+const (
+	Undefined Direction = iota
+	Top
+	Right
+	Bottom
+	Left
+)
+
 func buildGrid(input []string) Grid {
 	width := len(input[0])
 	height := len(input)
@@ -62,71 +72,63 @@ func findStart(grid Grid) Coord {
 	return Coord{}
 }
 
-func isValidNeighbor(neighbor Coord, g Grid, validPipes []byte) bool {
-	if !neighbor.isInBounds(g) {
+func (d Direction) opposite() Direction {
+	switch d {
+	case Top:
+		return Bottom
+	case Bottom:
+		return Top
+	case Left:
+		return Right
+	case Right:
+		return Left
+	default:
+		return Undefined
+	}
+
+}
+
+func (from Coord) isConnected(g Grid, to Coord, dir Direction) bool {
+	if !from.isInBounds(g) || !to.isInBounds(g) {
 		return false
 	}
-	pipe := g.Data[neighbor]
-	for _, validPipe := range validPipes {
-		if pipe == validPipe {
-			return true
+
+	connectableFrom := map[Direction][]byte{
+		Top:    {'|', 'F', '7', 'S'},
+		Right:  {'-', 'J', '7', 'S'},
+		Bottom: {'|', 'L', 'J', 'S'},
+		Left:   {'-', 'L', 'F', 'S'},
+	}
+
+	pipeFrom := g.Data[from]
+	pipeTo := g.Data[to]
+
+	for _, validPipe := range connectableFrom[dir] {
+		if pipeTo == validPipe {
+			for _, validPipe := range connectableFrom[dir.opposite()] {
+				if pipeFrom == validPipe {
+					return true
+				}
+			}
 		}
 	}
+
 	return false
 }
 
 func (c Coord) neighborsPipe(g Grid) []Coord {
-	isConnectableFrom := map[string][]byte{
-		"top":    {'|', 'F', '7'},
-		"right":  {'-', 'J', '7'},
-		"bottom": {'|', 'L', 'J'},
-		"left":   {'-', 'L', 'F'},
-	}
-	top := Coord{-1, -1}
-	right := Coord{-1, -1}
-	bottom := Coord{-1, -1}
-	left := Coord{-1, -1}
-
-	switch g.Data[c] {
-	case '|':
-		top = Coord{X: c.X, Y: c.Y - 1}
-		bottom = Coord{X: c.X, Y: c.Y + 1}
-	case '-':
-		left = Coord{X: c.X - 1, Y: c.Y}
-		right = Coord{X: c.X + 1, Y: c.Y}
-	case 'L':
-		top = Coord{X: c.X, Y: c.Y - 1}
-		right = Coord{X: c.X + 1, Y: c.Y}
-	case 'J':
-		top = Coord{X: c.X, Y: c.Y - 1}
-		left = Coord{X: c.X - 1, Y: c.Y}
-	case '7':
-		left = Coord{X: c.X - 1, Y: c.Y}
-		bottom = Coord{X: c.X, Y: c.Y + 1}
-	case 'F':
-		right = Coord{X: c.X + 1, Y: c.Y}
-		bottom = Coord{X: c.X, Y: c.Y + 1}
-	case 'S':
-		top = Coord{X: c.X, Y: c.Y - 1}
-		bottom = Coord{X: c.X, Y: c.Y + 1}
-		left = Coord{X: c.X - 1, Y: c.Y}
-		right = Coord{X: c.X + 1, Y: c.Y}
-	default:
-		return nil
+	possibleNeighbors := map[Direction]Coord{
+		Top:    {X: c.X, Y: c.Y - 1},
+		Right:  {X: c.X + 1, Y: c.Y},
+		Bottom: {X: c.X, Y: c.Y + 1},
+		Left:   {X: c.X - 1, Y: c.Y},
 	}
 
 	neighbors := []Coord{}
-	if isValidNeighbor(top, g, isConnectableFrom["top"]) {
-		neighbors = append(neighbors, top)
-	}
-	if isValidNeighbor(right, g, isConnectableFrom["right"]) {
-		neighbors = append(neighbors, right)
-	}
-	if isValidNeighbor(bottom, g, isConnectableFrom["bottom"]) {
-		neighbors = append(neighbors, bottom)
-	}
-	if isValidNeighbor(left, g, isConnectableFrom["left"]) {
-		neighbors = append(neighbors, left)
+	for dir, neighbor := range possibleNeighbors {
+		if c.isConnected(g, neighbor, dir) {
+			neighbors = append(neighbors, neighbor)
+		}
 	}
 	return neighbors
 }
@@ -142,31 +144,38 @@ func (c Coord) getPossiblesPipes(g Grid) []Coord {
 	return validDirections
 }
 
-func (c Coord) pathFinding(g Grid, length int, alreadySeen map[Coord]bool) int {
-	fmt.Println(length)
-	newAlreadySeen := make(map[Coord]bool)
-	for k, v := range alreadySeen {
-		newAlreadySeen[k] = v
-	}
-	newAlreadySeen[c] = true
+func (start Coord) pathFinding(grid Grid) int {
+	alreadySeen := make(map[Coord]bool)
+	toExplore := []Coord{start}
+	alreadySeen[start] = true
 
-	validDirections := c.getPossiblesPipes(g)
-	maxLength := length
-	for _, dir := range validDirections {
-		if !alreadySeen[dir] {
-			newLength := dir.pathFinding(g, length+1, newAlreadySeen)
-			maxLength = max(maxLength, newLength)
+	cntPipesVisited := 0
+	for len(toExplore) > 0 {
+		size := len(toExplore)
+		for i := 0; i < size; i++ {
+			current := toExplore[0]
+			toExplore = toExplore[1:]
+
+			possiblePipes := current.getPossiblesPipes(grid)
+			for _, next := range possiblePipes {
+				if !alreadySeen[next] {
+					toExplore = append(toExplore, next)
+					alreadySeen[next] = true
+				}
+			}
+			cntPipesVisited++
 		}
 	}
-	return maxLength
+
+	return cntPipesVisited
 }
 
 func Part1(input []string) int {
 	grid := buildGrid(input)
 	start := findStart(grid)
-	maxLength := start.pathFinding(grid, 0, map[Coord]bool{})
-	lenghtFarthestPoint := (maxLength + 1) / 2
-	return lenghtFarthestPoint
+	numPipesVisited := start.pathFinding(grid)
+	maxLength := numPipesVisited - 1
+	return maxLength
 }
 
 func Part2(input []string) int {
