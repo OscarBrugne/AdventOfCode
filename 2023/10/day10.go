@@ -47,9 +47,10 @@ func buildGrid(input []string) Grid {
 }
 
 func displayGrid(grid Grid, empty byte) {
-	for x := 0; x < grid.Width; x++ {
-		for y := 0; y < grid.Height; y++ {
-			if v, ok := grid.Data[Coord{X: y, Y: x}]; ok {
+	for y := 0; y < grid.Height; y++ {
+		for x := 0; x < grid.Width; x++ {
+			coord := Coord{X: x, Y: y}
+			if v, ok := grid.Data[coord]; ok {
 				fmt.Printf("%c", v)
 			} else {
 				fmt.Printf("%c", empty)
@@ -176,8 +177,109 @@ func (start Coord) pathFinding(grid Grid) []Coord {
 		}
 	}
 
-	path = append(path, start)
 	return path
+}
+
+func isolatePath(g Grid, path []Coord, empty byte) Grid {
+	newData := map[Coord]byte{}
+	for x := 0; x < g.Width; x++ {
+		for y := 0; y < g.Height; y++ {
+			newData[Coord{x, y}] = empty
+		}
+	}
+
+	for _, c := range path {
+		newData[c] = g.Data[c]
+	}
+
+	newData[path[0]] = getStartPipe(g)
+
+	newGrid := Grid{
+		Width:  g.Width,
+		Height: g.Height,
+		Data:   newData,
+	}
+	return newGrid
+}
+
+func (c Coord) isInside(g Grid, empty byte) bool {
+	if g.Data[c] != empty {
+		return false
+	}
+
+	startPipe := empty
+	numPipeOnLeft := 0
+	for x := 0; x < c.X; x++ {
+		coord := Coord{x, c.Y}
+		v := g.Data[coord]
+
+		switch v {
+		case '|':
+			numPipeOnLeft++
+		case 'L':
+			startPipe = 'L'
+		case 'F':
+			startPipe = 'F'
+		case 'J':
+			if startPipe == 'F' {
+				startPipe = empty
+				numPipeOnLeft++
+			} else if v == 'L' {
+				startPipe = '.'
+			}
+		case '7':
+			if startPipe == 'L' {
+				startPipe = '.'
+				numPipeOnLeft++
+			} else if startPipe == 'F' {
+				startPipe = '.'
+			}
+		}
+	}
+
+	return numPipeOnLeft%2 == 1
+}
+
+func getStartPipe(g Grid) byte {
+	start := findStart(g)
+	neighbors := start.getPossiblesPipes(g)
+
+	topCoord := Coord{start.X - 1, start.Y}
+	bottomCoord := Coord{start.X + 1, start.Y}
+	leftCoord := Coord{start.X, start.Y - 1}
+	rightCoord := Coord{start.X, start.Y + 1}
+
+	switch {
+	case neighbors[0] == topCoord && neighbors[1] == bottomCoord:
+		return '|'
+	case neighbors[0] == topCoord && neighbors[1] == rightCoord:
+		return 'L'
+	case neighbors[0] == topCoord && neighbors[1] == leftCoord:
+		return 'J'
+	case neighbors[0] == bottomCoord && neighbors[1] == rightCoord:
+		return 'F'
+	case neighbors[0] == bottomCoord && neighbors[1] == leftCoord:
+		return '7'
+	case neighbors[0] == rightCoord && neighbors[1] == leftCoord:
+		return '-'
+	}
+
+	switch {
+	case neighbors[1] == topCoord && neighbors[0] == bottomCoord:
+		return '|'
+	case neighbors[1] == topCoord && neighbors[0] == rightCoord:
+		return 'L'
+	case neighbors[1] == topCoord && neighbors[0] == leftCoord:
+		return 'J'
+	case neighbors[1] == bottomCoord && neighbors[0] == rightCoord:
+		return 'F'
+	case neighbors[1] == bottomCoord && neighbors[0] == leftCoord:
+		return '7'
+	case neighbors[1] == rightCoord && neighbors[0] == leftCoord:
+		return '-'
+	}
+
+	panic("Start pipe not find")
 }
 
 func Part1(input []string) int {
@@ -185,13 +287,31 @@ func Part1(input []string) int {
 	start := findStart(grid)
 	path := start.pathFinding(grid)
 	numPipesVisited := len(path)
-	maxLength := (numPipesVisited - 1) / 2
+	maxLength := numPipesVisited / 2
 	return maxLength
 }
 
 func Part2(input []string) int {
-	res := 0
-	return res
+	grid := buildGrid(input)
+	start := findStart(grid)
+	path := start.pathFinding(grid)
+
+	isolateGrid := isolatePath(grid, path, '.')
+
+	cnt := 0
+	for y := 0; y < grid.Height; y++ {
+		for x := 0; x < grid.Width; x++ {
+			c := Coord{X: x, Y: y}
+			if c.isInside(isolateGrid, '.') {
+				// isolateGrid.Data[c] = 'I'
+				cnt++
+			}
+		}
+	}
+
+	// displayGrid(isolateGrid, ' ')
+
+	return cnt
 }
 
 func main() {

@@ -2,7 +2,7 @@
 
 Puzzles from [Advent of Code](https://adventofcode.com/) solved using Go.
 
-My goal is to resolve the problems within the day of release. Then, I refactor my code in order to have clean code, even if it means losing slightly in performance.
+My goal is to resolve problems on release day. Then, I refactor my code in order to have clean code, even if it means losing slightly in performance.
 
 ## Commands
 
@@ -28,3 +28,4 @@ Execution time with :
 | 7   | ** | `7.35ms`  | `7.59ms`  | Using '*' instead of 'J' to represent jokers.                    |
 | 8   | ** | `0.98ms`  | `3.96ms`  | Using LCM (Least Common Multiple) (doesn't work for general inputs, works here because the cycle length on each path is the same). |
 | 9   | ** | `1.20ms`  | `1.21ms`  | Resolution without recursion.                                    |
+| 10  |    | `0.00ms`  | `0.00ms`  |                                                                  |
