@@ -40,22 +40,30 @@ func allZeros(nums []int) bool {
 	return true
 }
 
-func calculateExtrapolations(history []int) [][]int {
-	extrapolationsSlices := [][]int{}
-	extrapolationsSlices = append(extrapolationsSlices, history)
+func calculateExtrapolation(history []int) []int {
+	extrapolations := []int{}
+	for i := 1; i < len(history); i++ {
+		extrapolation := history[i] - history[i-1]
+		extrapolations = append(extrapolations, extrapolation)
+	}
+	return extrapolations
+}
 
-	i := 0
-	for (i < len(history)-1) && !allZeros(extrapolationsSlices[i]) {
-		i++
-		extrapolationsSlices = append(extrapolationsSlices, []int{})
-		previousExtrapolations := extrapolationsSlices[i-1]
-		for j := 1; j < len(previousExtrapolations); j++ {
-			extrapolation := previousExtrapolations[j] - previousExtrapolations[j-1]
-			extrapolationsSlices[i] = append(extrapolationsSlices[i], extrapolation)
+func calculateExtrapolations(history []int) [][]int {
+	extrapolationsSeries := [][]int{}
+	extrapolationsSeries = append(extrapolationsSeries, history)
+
+	for i := 1; i < len(history); i++ {
+		previousExtrapolations := extrapolationsSeries[i-1]
+		if allZeros(previousExtrapolations) {
+			return extrapolationsSeries
 		}
+
+		extrapolations := calculateExtrapolation(previousExtrapolations)
+		extrapolationsSeries = append(extrapolationsSeries, extrapolations)
 	}
 
-	return extrapolationsSlices
+	return extrapolationsSeries
 }
 
 func Part1(input []string) int {
@@ -63,11 +71,11 @@ func Part1(input []string) int {
 	res := 0
 
 	for _, history := range histories {
-		extrapolationsSlices := calculateExtrapolations(history)
+		extrapolationsSeries := calculateExtrapolations(history)
 
 		futurePrediction := 0
-		for i := len(extrapolationsSlices) - 1; i > -1; i-- {
-			futurePrediction = extrapolationsSlices[i][len(extrapolationsSlices[i])-1] + futurePrediction
+		for i := len(extrapolationsSeries) - 1; i > -1; i-- {
+			futurePrediction = extrapolationsSeries[i][len(extrapolationsSeries[i])-1] + futurePrediction
 		}
 
 		res += futurePrediction
@@ -81,11 +89,11 @@ func Part2(input []string) int {
 	res := 0
 
 	for _, history := range histories {
-		extrapolationsSlices := calculateExtrapolations(history)
+		extrapolationsSeries := calculateExtrapolations(history)
 
 		pastPrediction := 0
-		for i := len(extrapolationsSlices) - 1; i > -1; i-- {
-			pastPrediction = extrapolationsSlices[i][0] - pastPrediction
+		for i := len(extrapolationsSeries) - 1; i > -1; i-- {
+			pastPrediction = extrapolationsSeries[i][0] - pastPrediction
 		}
 
 		res += pastPrediction
