@@ -28,4 +28,5 @@ Execution time with :
 | 7   | ** | `7.35ms`  | `7.59ms`  | Using '*' instead of 'J' to represent jokers.                    |
 | 8   | ** | `0.98ms`  | `3.96ms`  | Using LCM (Least Common Multiple) (doesn't work for general inputs, works here because the cycle length on each path is the same). |
 | 9   | ** | `1.20ms`  | `1.21ms`  | Resolution without recursion.                                    |
-| 10  |    | `0.00ms`  | `0.00ms`  |                                                                  |
+| 10  | ** | `0.00ms`  | `0.00ms`  | To refactor                                                      |
+| 11  | ** | `3.89ms`  | `3.80ms`  |                                                                  |

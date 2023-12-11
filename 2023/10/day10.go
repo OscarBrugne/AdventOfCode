@@ -303,13 +303,13 @@ func Part2(input []string) int {
 		for x := 0; x < grid.Width; x++ {
 			c := Coord{X: x, Y: y}
 			if c.isInside(isolateGrid, '.') {
-				// isolateGrid.Data[c] = 'I'
+				isolateGrid.Data[c] = 'I' // optional
 				cnt++
 			}
 		}
 	}
 
-	// displayGrid(isolateGrid, ' ')
+	displayGrid(isolateGrid, ' ') // optional
 
 	return cnt
 }
