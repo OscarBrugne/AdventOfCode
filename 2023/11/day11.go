@@ -57,7 +57,7 @@ func (grid Grid) toString(empty byte) string {
 	return result.String()
 }
 
-func getEmptyRows(grid Grid) []int {
+func (grid Grid) getEmptyRows() []int {
 	emptyRows := []int{}
 	for y := 0; y < grid.Height; y++ {
 		isEmpty := true
@@ -77,14 +77,14 @@ func getEmptyRows(grid Grid) []int {
 	return emptyRows
 }
 
-func getEmptyCols(g Grid) []int {
+func (grid Grid) getEmptyCols() []int {
 	emptyCols := []int{}
-	for x := 0; x < g.Width; x++ {
+	for x := 0; x < grid.Width; x++ {
 		isEmpty := true
 
 		y := 0
-		for y < g.Height {
-			if _, ok := g.Data[Coord{x, y}]; ok {
+		for y < grid.Height {
+			if _, ok := grid.Data[Coord{x, y}]; ok {
 				isEmpty = false
 			}
 			y++
@@ -97,36 +97,36 @@ func getEmptyCols(g Grid) []int {
 	return emptyCols
 }
 
+func calculateOffsets(emptyIndexes []int, bound int) []int {
+	offsets := make([]int, bound)
+	for _, idx := range emptyIndexes {
+		for i := idx + 1; i < len(offsets); i++ {
+			offsets[i]++
+		}
+	}
+	return offsets
+}
+
 func expandGrid(grid Grid, expansionFactor int) Grid {
+	emptyCols := grid.getEmptyCols()
+	emptyRows := grid.getEmptyRows()
 	numLinesToAdd := expansionFactor - 1
-	emptyRows := getEmptyRows(grid)
-	emptyCols := getEmptyCols(grid)
 
 	newGrid := Grid{
 		Width:  grid.Width + len(emptyCols)*numLinesToAdd,
 		Height: grid.Height + len(emptyRows)*numLinesToAdd,
-		Data:   map[Coord]byte{},
+		Data:   make(map[Coord]byte, len(grid.Data)),
 	}
+
+	dXs := calculateOffsets(emptyCols, grid.Width)
+	dYs := calculateOffsets(emptyRows, grid.Height)
 
 	for y := 0; y < grid.Height; y++ {
 		for x := 0; x < grid.Width; x++ {
 			coord := Coord{X: x, Y: y}
 			if _, ok := grid.Data[coord]; ok {
-				dX := 0
-				for _, c := range emptyCols {
-					if c < x {
-						dX++
-					}
-				}
-
-				dY := 0
-				for _, c := range emptyRows {
-					if c < y {
-						dY++
-					}
-				}
-
-				newGrid.Data[Coord{x + dX*numLinesToAdd, y + dY*numLinesToAdd}] = grid.Data[coord]
+				newCoord := Coord{x + dXs[x]*numLinesToAdd, y + dYs[y]*numLinesToAdd}
+				newGrid.Data[newCoord] = grid.Data[coord]
 			}
 		}
 	}
@@ -150,16 +150,16 @@ func calculateLength(grid Grid, c1, c2 Coord) int {
 func Part1(input []string) int {
 	grid := buildGrid(input, Empty)
 
-	expandGrid := expandGrid(grid, 2)
+	expandedGrid := expandGrid(grid, 2)
 
 	res := 0
-	alreadySeen := map[Coord]bool{}
-	for coord1 := range expandGrid.Data {
-		alreadySeen[coord1] = true
+	alreadySeen := map[Coord]struct{}{}
+	for coord1 := range expandedGrid.Data {
 		for coord2 := range alreadySeen {
-			length := calculateLength(expandGrid, coord1, coord2)
+			length := calculateLength(expandedGrid, coord1, coord2)
 			res += length
 		}
+		alreadySeen[coord1] = struct{}{}
 	}
 
 	return res
@@ -168,16 +168,16 @@ func Part1(input []string) int {
 func Part2(input []string, expansionFactor int) int {
 	grid := buildGrid(input, Empty)
 
-	expandGrid := expandGrid(grid, expansionFactor)
+	expandedGrid := expandGrid(grid, expansionFactor)
 
 	res := 0
 	alreadySeen := map[Coord]bool{}
-	for coord1 := range expandGrid.Data {
-		alreadySeen[coord1] = true
+	for coord1 := range expandedGrid.Data {
 		for coord2 := range alreadySeen {
-			length := calculateLength(expandGrid, coord1, coord2)
+			length := calculateLength(expandedGrid, coord1, coord2)
 			res += length
 		}
+		alreadySeen[coord1] = true
 	}
 
 	return res
