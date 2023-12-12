@@ -23,7 +23,7 @@ func TestPart1(t *testing.T) {
 
 func TestPart2(t *testing.T) {
 	result := Part2(inputTest)
-	expected := 0
+	expected := 525152
 	if result != expected {
 		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
 	}
@@ -34,7 +34,7 @@ func TestGetContinousGroup(t *testing.T) {
 	expected := []int{1, 1, 3}
 
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
+		t.Errorf("Result is incorrect, got: %v, want: %v.", result, expected)
 	}
 }
 
@@ -56,6 +56,26 @@ func TestCountArrangements(t *testing.T) {
 	}
 	result = countArrangements(row)
 	expected = 1
+
+	if result != expected {
+		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
+	}
+}
+
+func TestUnfoldRow(t *testing.T) {
+	row := Row{
+		Springs:        ".#",
+		ContinousGroup: []int{1},
+	}
+	result := unfoldRow(row, 5)
+	expected := Row{
+		Springs:        ".#?.#?.#?.#?.#",
+		ContinousGroup: []int{1, 1, 1, 1, 1},
+	}
+
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Result is incorrect, got: %v, want: %v.", result, expected)
+	}
 }
 
 func BenchmarkPart1(b *testing.B) {

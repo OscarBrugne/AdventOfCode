@@ -106,6 +106,20 @@ func countArrangements(row Row) int {
 	return res1 + res2
 }
 
+func unfoldRow(row Row, unfoldingFactor int) Row {
+	newRow := Row{
+		Springs:        row.Springs,
+		ContinousGroup: row.ContinousGroup,
+	}
+
+	for i := 1; i < unfoldingFactor; i++ {
+		newRow.Springs += "?" + row.Springs
+		newRow.ContinousGroup = append(newRow.ContinousGroup, row.ContinousGroup...)
+	}
+
+	return newRow
+}
+
 func Part1(input []string) int {
 	rows := parseInput(input)
 
@@ -118,7 +132,18 @@ func Part1(input []string) int {
 }
 
 func Part2(input []string) int {
+	rows := parseInput(input)
+
+	unfoldedRows := []Row{}
+	for _, row := range rows {
+		unfoldedRows = append(unfoldedRows, unfoldRow(row, 5))
+	}
+
 	res := 0
+	for _, row := range unfoldedRows {
+		res += countArrangements(row)
+	}
+
 	return res
 }
 
