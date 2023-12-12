@@ -30,3 +30,4 @@ Execution time with :
 | 9   | ** | `1.20ms`  | `1.21ms`  | Resolution without recursion.                                    |
 | 10  | ** | `0.00ms`  | `0.00ms`  | To refactor                                                      |
 | 11  | ** | `3.89ms`  | `3.80ms`  |                                                                  |
+| 12  | ** | `0.00ms`  | `0.00ms`  | To refactor                                                      |

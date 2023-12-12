@@ -43,67 +43,67 @@ func parseStringToInts(numbersLine string) []int {
 	return numbers
 }
 
-func getFirstIndex(str string, char rune) int {
-	for i, c := range str {
-		if c == char {
-			return i
-		}
-	}
-	return -1
-}
+var cache = map[string]int{}
 
-func getContinousGroup(springs string) []int {
-	group := []int{}
-	count := 0
-	for _, c := range springs {
-		if c == '?' {
-			return nil
-		} else if c == '#' {
-			count++
-		} else {
-			if count > 0 {
-				group = append(group, count)
-				count = 0
-			}
-		}
-	}
-	if count > 0 {
-		group = append(group, count)
-	}
-	return group
-}
-
-func isValidArrangement(row Row) bool {
-	group := getContinousGroup(row.Springs)
-
-	if len(group) != len(row.ContinousGroup) {
-		return false
+func countArrangements(row Row, isFirstContiguous bool) int {
+	cacheKey := fmt.Sprintf("%v-%v-%v", row.Springs, row.ContinousGroup, isFirstContiguous)
+	if val, ok := cache[cacheKey]; ok {
+		return val
 	}
 
-	for i, g := range group {
-		if g != row.ContinousGroup[i] {
-			return false
-		}
-	}
-	return true
-}
-
-func countArrangements(row Row) int {
-	i := getFirstIndex(row.Springs, '?')
-
-	if i == -1 {
-		if isValidArrangement(row) {
+	if row.Springs == "" {
+		if len(row.ContinousGroup) == 0 {
+			cache[cacheKey] = 1
 			return 1
 		}
+		if len(row.ContinousGroup) == 1 && row.ContinousGroup[0] == 0 {
+			cache[cacheKey] = 1
+			return 1
+		}
+		cache[cacheKey] = 0
 		return 0
 	}
 
-	newSprings1 := row.Springs[:i] + "." + row.Springs[i+1:]
-	newSprings2 := row.Springs[:i] + "#" + row.Springs[i+1:]
+	switch row.Springs[0] {
+	case '#':
+		if len(row.ContinousGroup) == 0 || row.ContinousGroup[0] == 0 {
+			cache[cacheKey] = 0
+			return 0
+		}
+		row.ContinousGroup[0]--
+		result := countArrangements(Row{Springs: row.Springs[1:], ContinousGroup: row.ContinousGroup}, true)
+		cache[cacheKey] = result
+		return result
+	case '.':
+		if len(row.ContinousGroup) == 0 {
+			result := countArrangements(Row{Springs: row.Springs[1:], ContinousGroup: row.ContinousGroup}, false)
+			cache[cacheKey] = result
+			return result
+		}
+		if row.ContinousGroup[0] == 0 {
+			result := countArrangements(Row{Springs: row.Springs[1:], ContinousGroup: row.ContinousGroup[1:]}, false)
+			cache[cacheKey] = result
+			return result
+		}
+		if isFirstContiguous {
+			cache[cacheKey] = 0
+			return 0
+		}
+		result := countArrangements(Row{Springs: row.Springs[1:], ContinousGroup: row.ContinousGroup}, false)
+		cache[cacheKey] = result
+		return result
+	case '?':
+		copyContinousGroup := make([]int, len(row.ContinousGroup))
+		copy(copyContinousGroup, row.ContinousGroup)
 
-	res1 := countArrangements(Row{Springs: newSprings1, ContinousGroup: row.ContinousGroup})
-	res2 := countArrangements(Row{Springs: newSprings2, ContinousGroup: row.ContinousGroup})
-	return res1 + res2
+		res1 := countArrangements(Row{Springs: "#" + row.Springs[1:], ContinousGroup: row.ContinousGroup}, true)
+		res2 := countArrangements(Row{Springs: "." + row.Springs[1:], ContinousGroup: copyContinousGroup}, isFirstContiguous)
+		result := res1 + res2
+		cache[cacheKey] = result
+		return result
+	default:
+		panic("Unknown spring")
+	}
 }
 
 func unfoldRow(row Row, unfoldingFactor int) Row {
@@ -125,7 +125,7 @@ func Part1(input []string) int {
 
 	res := 0
 	for _, row := range rows {
-		res += countArrangements(row)
+		res += countArrangements(row, false)
 	}
 
 	return res
@@ -141,7 +141,7 @@ func Part2(input []string) int {
 
 	res := 0
 	for _, row := range unfoldedRows {
-		res += countArrangements(row)
+		res += countArrangements(row, false)
 	}
 
 	return res

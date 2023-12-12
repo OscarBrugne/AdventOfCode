@@ -29,21 +29,12 @@ func TestPart2(t *testing.T) {
 	}
 }
 
-func TestGetContinousGroup(t *testing.T) {
-	result := getContinousGroup("#.#.###")
-	expected := []int{1, 1, 3}
-
-	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Result is incorrect, got: %v, want: %v.", result, expected)
-	}
-}
-
 func TestCountArrangements(t *testing.T) {
 	row := Row{
 		Springs:        ".??..??...?##.",
 		ContinousGroup: []int{1, 1, 3},
 	}
-	result := countArrangements(row)
+	result := countArrangements(row, false)
 	expected := 4
 
 	if result != expected {
@@ -54,8 +45,19 @@ func TestCountArrangements(t *testing.T) {
 		Springs:        "?#?#?#?#?#?#?#?",
 		ContinousGroup: []int{1, 3, 1, 6},
 	}
-	result = countArrangements(row)
+	result = countArrangements(row, false)
 	expected = 1
+
+	if result != expected {
+		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
+	}
+
+	row = Row{
+		Springs:        "?????",
+		ContinousGroup: []int{2, 1},
+	}
+	result = countArrangements(row, false)
+	expected = 3
 
 	if result != expected {
 		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
