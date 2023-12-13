@@ -29,13 +29,13 @@ func TestPart2(t *testing.T) {
 }
 
 func BenchmarkPart1(b *testing.B) {
-	for i := 0; i < 10000*b.N; i++ {
+	for i := 0; i < b.N; i++ {
 		Part1(inputDay)
 	}
 }
 
 func BenchmarkPart2(b *testing.B) {
-	for i := 0; i < 10000*b.N; i++ {
+	for i := 0; i < b.N; i++ {
 		Part2(inputDay)
 	}
 }
