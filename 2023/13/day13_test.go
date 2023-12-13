@@ -22,20 +22,20 @@ func TestPart1(t *testing.T) {
 
 func TestPart2(t *testing.T) {
 	result := Part2(inputTest)
-	expected := 0
+	expected := 400
 	if result != expected {
 		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
 	}
 }
 
 func BenchmarkPart1(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for i := 0; i < 10000*b.N; i++ {
 		Part1(inputDay)
 	}
 }
 
 func BenchmarkPart2(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for i := 0; i < 10000*b.N; i++ {
 		Part2(inputDay)
 	}
 }

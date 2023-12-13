@@ -64,6 +64,32 @@ func getMirrorAxis(lines []int) int {
 	return 0
 }
 
+func getMirrorAxisWithOneSmudge(lines []int) int {
+	for i := 1; i < len(lines); i++ {
+		isMirror := true
+		numSmudges := 0
+		for j := 0; isMirror && j < min(i, len(lines)-i); j++ {
+			if lines[i-1-j] != lines[i+j] {
+				if numSmudges > 0 {
+					isMirror = false
+				} else {
+					dif := lines[i-1-j] ^ lines[i+j]
+					isOnlyOneSmudge := (dif & (dif - 1)) == 0
+					if isOnlyOneSmudge {
+						numSmudges++
+					} else {
+						isMirror = false
+					}
+				}
+			}
+		}
+		if isMirror && numSmudges == 1 {
+			return i
+		}
+	}
+	return 0
+}
+
 func Part1(input []string) int {
 	mirrors := parseInput(input)
 	res := 0
@@ -75,7 +101,12 @@ func Part1(input []string) int {
 }
 
 func Part2(input []string) int {
+	mirrors := parseInput(input)
 	res := 0
+	for _, mirror := range mirrors {
+		res += getMirrorAxisWithOneSmudge(mirror.Cols)
+		res += getMirrorAxisWithOneSmudge(mirror.Rows) * 100
+	}
 	return res
 }
 

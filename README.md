@@ -31,3 +31,4 @@ Execution time with :
 | 10  | ** | `0.00ms`  | `0.00ms`  | To refactor                                                      |
 | 11  | ** | `3.89ms`  | `3.80ms`  |                                                                  |
 | 12  | ** | `0.00ms`  | `0.00ms`  | To refactor                                                      |
+| 12  | ** | `0.30ms`  | `0.31ms`  | Using binary number to represent each line (in order to reduce execution time when comparing 2 lines). |
