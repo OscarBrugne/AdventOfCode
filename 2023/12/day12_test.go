@@ -31,10 +31,10 @@ func TestPart2(t *testing.T) {
 
 func TestCountArrangements(t *testing.T) {
 	row := Row{
-		Springs:        ".??..??...?##.",
-		ContinousGroup: []int{1, 1, 3},
+		Springs: ".??..??...?##.",
+		Group:   []int{1, 1, 3},
 	}
-	result := countArrangements(row, false)
+	result := countArrangements(row)
 	expected := 4
 
 	if result != expected {
@@ -42,10 +42,10 @@ func TestCountArrangements(t *testing.T) {
 	}
 
 	row = Row{
-		Springs:        "?#?#?#?#?#?#?#?",
-		ContinousGroup: []int{1, 3, 1, 6},
+		Springs: "?#?#?#?#?#?#?#?",
+		Group:   []int{1, 3, 1, 6},
 	}
-	result = countArrangements(row, false)
+	result = countArrangements(row)
 	expected = 1
 
 	if result != expected {
@@ -53,10 +53,10 @@ func TestCountArrangements(t *testing.T) {
 	}
 
 	row = Row{
-		Springs:        "?????",
-		ContinousGroup: []int{2, 1},
+		Springs: "?????",
+		Group:   []int{2, 1},
 	}
-	result = countArrangements(row, false)
+	result = countArrangements(row)
 	expected = 3
 
 	if result != expected {
@@ -66,13 +66,13 @@ func TestCountArrangements(t *testing.T) {
 
 func TestUnfoldRow(t *testing.T) {
 	row := Row{
-		Springs:        ".#",
-		ContinousGroup: []int{1},
+		Springs: ".#",
+		Group:   []int{1},
 	}
 	result := unfoldRow(row, 5)
 	expected := Row{
-		Springs:        ".#?.#?.#?.#?.#",
-		ContinousGroup: []int{1, 1, 1, 1, 1},
+		Springs: ".#?.#?.#?.#?.#",
+		Group:   []int{1, 1, 1, 1, 1},
 	}
 
 	if !reflect.DeepEqual(result, expected) {

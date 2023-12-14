@@ -10,8 +10,8 @@ import (
 )
 
 type Row struct {
-	Springs        string
-	ContinousGroup []int
+	Springs string
+	Group   []int
 }
 
 func parseInput(input []string) (rows []Row) {
@@ -22,8 +22,8 @@ func parseInput(input []string) (rows []Row) {
 		ints := parseStringToInts(parts[1])
 
 		row := Row{
-			Springs:        springs,
-			ContinousGroup: ints,
+			Springs: springs,
+			Group:   ints,
 		}
 		rows = append(rows, row)
 	}
@@ -43,78 +43,53 @@ func parseStringToInts(numbersLine string) []int {
 	return numbers
 }
 
-var cache = map[string]int{}
+func countArrangementsRecursive(row Row, iSprings, iGroup, iContiguousDamaged int, cache map[[3]int]int) int {
+	if iSprings == len(row.Springs) {
+		if iGroup == len(row.Group) && iContiguousDamaged == 0 {
+			return 1
+		} else if iGroup == len(row.Group)-1 && iContiguousDamaged == row.Group[iGroup] {
+			return 1
+		}
+		return 0
+	}
 
-func countArrangements(row Row, isFirstContiguous bool) int {
-	cacheKey := fmt.Sprintf("%v-%v-%v", row.Springs, row.ContinousGroup, isFirstContiguous)
+	cacheKey := [3]int{iSprings, iGroup, iContiguousDamaged}
 	if val, ok := cache[cacheKey]; ok {
 		return val
 	}
 
-	if row.Springs == "" {
-		if len(row.ContinousGroup) == 0 {
-			cache[cacheKey] = 1
-			return 1
+	res := 0
+	char := row.Springs[iSprings]
+	if char == '.' || char == '?' {
+		if iContiguousDamaged == 0 {
+			res += countArrangementsRecursive(row, iSprings+1, iGroup, iContiguousDamaged, cache)
+		} else if iContiguousDamaged == row.Group[iGroup] {
+			res += countArrangementsRecursive(row, iSprings+1, iGroup+1, 0, cache)
 		}
-		if len(row.ContinousGroup) == 1 && row.ContinousGroup[0] == 0 {
-			cache[cacheKey] = 1
-			return 1
+	}
+	if char == '#' || char == '?' {
+		if iGroup < len(row.Group) && iContiguousDamaged < row.Group[iGroup] {
+			res += countArrangementsRecursive(row, iSprings+1, iGroup, iContiguousDamaged+1, cache)
 		}
-		cache[cacheKey] = 0
-		return 0
 	}
 
-	switch row.Springs[0] {
-	case '#':
-		if len(row.ContinousGroup) == 0 || row.ContinousGroup[0] == 0 {
-			cache[cacheKey] = 0
-			return 0
-		}
-		row.ContinousGroup[0]--
-		result := countArrangements(Row{Springs: row.Springs[1:], ContinousGroup: row.ContinousGroup}, true)
-		cache[cacheKey] = result
-		return result
-	case '.':
-		if len(row.ContinousGroup) == 0 {
-			result := countArrangements(Row{Springs: row.Springs[1:], ContinousGroup: row.ContinousGroup}, false)
-			cache[cacheKey] = result
-			return result
-		}
-		if row.ContinousGroup[0] == 0 {
-			result := countArrangements(Row{Springs: row.Springs[1:], ContinousGroup: row.ContinousGroup[1:]}, false)
-			cache[cacheKey] = result
-			return result
-		}
-		if isFirstContiguous {
-			cache[cacheKey] = 0
-			return 0
-		}
-		result := countArrangements(Row{Springs: row.Springs[1:], ContinousGroup: row.ContinousGroup}, false)
-		cache[cacheKey] = result
-		return result
-	case '?':
-		copyContinousGroup := make([]int, len(row.ContinousGroup))
-		copy(copyContinousGroup, row.ContinousGroup)
+	cache[cacheKey] = res
+	return res
+}
 
-		res1 := countArrangements(Row{Springs: "#" + row.Springs[1:], ContinousGroup: row.ContinousGroup}, true)
-		res2 := countArrangements(Row{Springs: "." + row.Springs[1:], ContinousGroup: copyContinousGroup}, isFirstContiguous)
-		result := res1 + res2
-		cache[cacheKey] = result
-		return result
-	default:
-		panic("Unknown spring")
-	}
+func countArrangements(row Row) int {
+	return countArrangementsRecursive(row, 0, 0, 0, map[[3]int]int{})
 }
 
 func unfoldRow(row Row, unfoldingFactor int) Row {
 	newRow := Row{
-		Springs:        row.Springs,
-		ContinousGroup: row.ContinousGroup,
+		Springs: row.Springs,
+		Group:   row.Group,
 	}
 
 	for i := 1; i < unfoldingFactor; i++ {
 		newRow.Springs += "?" + row.Springs
-		newRow.ContinousGroup = append(newRow.ContinousGroup, row.ContinousGroup...)
+		newRow.Group = append(newRow.Group, row.Group...)
 	}
 
 	return newRow
@@ -125,7 +100,7 @@ func Part1(input []string) int {
 
 	res := 0
 	for _, row := range rows {
-		res += countArrangements(row, false)
+		res += countArrangements(row)
 	}
 
 	return res
@@ -141,7 +116,7 @@ func Part2(input []string) int {
 
 	res := 0
 	for _, row := range unfoldedRows {
-		res += countArrangements(row, false)
+		res += countArrangements(row)
 	}
 
 	return res
