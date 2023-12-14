@@ -12,16 +12,31 @@ type Coord struct {
 	Y int
 }
 
+func (c1 Coord) Add(c2 Coord) Coord {
+	return Coord{c1.X + c2.X, c1.Y + c2.Y}
+}
+
 type Grid struct {
 	Width  int
 	Height int
 	Data   map[Coord]byte
 }
 
+func (coord Coord) isInBounds(grid Grid) bool {
+	return 0 <= coord.X && coord.X < grid.Width && 0 <= coord.Y && coord.Y < grid.Height
+}
+
 const (
 	Empty     byte = '.'
 	CubicRock byte = '#'
 	RoundRock byte = 'O'
+)
+
+var (
+	North = Coord{0, -1}
+	West  = Coord{-1, 0}
+	South = Coord{0, 1}
+	East  = Coord{1, 0}
 )
 
 func buildGrids(input []string) Grid {
@@ -60,21 +75,46 @@ func (grid Grid) toString() string {
 	return result
 }
 
-func shiftRocksNorth(grid Grid) {
-	for x := 0; x < grid.Width; x++ {
-		for y := 1; y < grid.Height; y++ {
-			if grid.Data[Coord{x, y}] == RoundRock {
-				newY := y
-				_, ok := grid.Data[Coord{x, newY - 1}]
-				for !ok && newY >= 1 {
-					grid.Data[Coord{x, newY - 1}] = RoundRock
-					delete(grid.Data, Coord{x, newY})
-					newY--
-					_, ok = grid.Data[Coord{x, newY - 1}]
-				}
+func shiftSingleRock(grid Grid, coord Coord, dir Coord) {
+	if grid.Data[coord] == RoundRock {
+		current := coord
+		before := coord.Add(dir)
+
+		_, ok := grid.Data[before]
+		for !ok && before.isInBounds(grid) {
+			grid.Data[before] = RoundRock
+			delete(grid.Data, current)
+
+			current = before
+			before = before.Add(dir)
+			_, ok = grid.Data[before]
+		}
+	}
+}
+
+func shiftRocks(grid Grid, dir Coord) {
+	switch dir {
+	case North, West:
+		for x := 0; x < grid.Width; x++ {
+			for y := 0; y < grid.Height; y++ {
+				shiftSingleRock(grid, Coord{x, y}, dir)
+			}
+		}
+
+	case South, East:
+		for x := grid.Width - 1; x >= 0; x-- {
+			for y := grid.Height - 1; y >= 0; y-- {
+				shiftSingleRock(grid, Coord{x, y}, dir)
 			}
 		}
 	}
+}
+
+func cycleRocks(grid Grid) {
+	shiftRocks(grid, North)
+	shiftRocks(grid, West)
+	shiftRocks(grid, South)
+	shiftRocks(grid, East)
 }
 
 func calculateLoad(grid Grid) int {
@@ -94,15 +134,33 @@ func calculateLoad(grid Grid) int {
 
 func Part1(input []string) int {
 	grid := buildGrids(input)
-	shiftRocksNorth(grid)
+	shiftRocks(grid, North)
 
-	res := calculateLoad(grid)
-	return res
+	return calculateLoad(grid)
 }
 
 func Part2(input []string) int {
-	res := 0
-	return res
+	numCycles := 1000000000
+
+	grid := buildGrids(input)
+	cache := make(map[string]int)
+
+	for i := 0; i < numCycles; i++ {
+		gridStr := grid.toString()
+
+		if iStartCycle, ok := cache[gridStr]; ok {
+			remainingCycles := (numCycles - iStartCycle) % (i - iStartCycle)
+			for j := 0; j < remainingCycles; j++ {
+				cycleRocks(grid)
+			}
+			return calculateLoad(grid)
+		}
+
+		cache[gridStr] = i
+		cycleRocks(grid)
+	}
+
+	return calculateLoad(grid)
 }
 
 func main() {
