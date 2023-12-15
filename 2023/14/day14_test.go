@@ -1,6 +1,7 @@
 package main
 
 import (
+	"reflect"
 	"testing"
 
 	"AdventOfCode/utils"
@@ -25,6 +26,39 @@ func TestPart2(t *testing.T) {
 	expected := 64
 	if result != expected {
 		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
+	}
+}
+
+func TestShiftRocksNorth(t *testing.T) {
+	input := []string{
+		"O....#....",
+		"O.OO#....#",
+		".....##...",
+		"OO.#O....O",
+		".O.....O#.",
+		"O.#..O.#.#",
+		"..O..#O..O",
+		".......O..",
+		"#....###..",
+		"#OO..#....",
+	}
+	result := buildGrids(input)
+	shiftRocks(result, North)
+	expected := buildGrids([]string{
+		"OOOO.#.O..",
+		"OO..#....#",
+		"OO..O##..O",
+		"O..#.OO...",
+		"........#.",
+		"..#....#.#",
+		"..O..#.O.O",
+		"..O.......",
+		"#....###..",
+		"#....#....",
+	})
+
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Result is incorrect:\nGot:\n%s\n\nWant:\n%s.", result.toString(), expected.toString())
 	}
 }
 

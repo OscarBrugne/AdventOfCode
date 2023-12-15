@@ -117,6 +117,21 @@ func cycleRocks(grid Grid) {
 	shiftRocks(grid, East)
 }
 
+func calculateGridKey(grid Grid) int {
+	key := 0
+
+	for x := 0; x < grid.Width; x++ {
+		for y := 0; y < grid.Height; y++ {
+			coord := Coord{x, y}
+			if grid.Data[coord] == RoundRock {
+				key += coord.X + coord.Y*grid.Width
+			}
+		}
+	}
+
+	return key
+}
+
 func calculateLoad(grid Grid) int {
 	load := 0
 
@@ -143,20 +158,19 @@ func Part2(input []string) int {
 	numCycles := 1000000000
 
 	grid := buildGrids(input)
-	cache := make(map[string]int)
+	cache := make(map[int]int)
 
 	for i := 0; i < numCycles; i++ {
-		gridStr := grid.toString()
-
-		if iStartCycle, ok := cache[gridStr]; ok {
+		gridKey := calculateGridKey(grid)
+		if iStartCycle, ok := cache[gridKey]; ok {
 			remainingCycles := (numCycles - iStartCycle) % (i - iStartCycle)
 			for j := 0; j < remainingCycles; j++ {
 				cycleRocks(grid)
 			}
 			return calculateLoad(grid)
 		}
+		cache[gridKey] = i
 
-		cache[gridStr] = i
 		cycleRocks(grid)
 	}
 

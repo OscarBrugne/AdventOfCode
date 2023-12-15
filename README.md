@@ -32,5 +32,5 @@ Execution time with :
 | 11  | ** | `3.89ms`  | `3.80ms`  |                                                                  |
 | 12  | ** | `11.8ms`  | `117ms`   | Using dynamic programming.                                       |
 | 13  | ** | `0.30ms`  | `0.31ms`  | Using binary number to represent each line (in order to reduce execution time when comparing 2 lines). |
-| 14  | ** | `2.34ms`  | `4750ms`  | Using memoization to avoid redundant cycles.                     |
+| 14  | ** | `2.30ms`  | `914ms`   | Using memoization to avoid redundant cycles.                     |
 | 15  | ** | `0.14ms`  | `1.17ms`  |                                                                  |
