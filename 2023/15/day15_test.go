@@ -1,6 +1,7 @@
 package main
 
 import (
+	"reflect"
 	"testing"
 
 	"AdventOfCode/utils"
@@ -22,7 +23,48 @@ func TestPart1(t *testing.T) {
 
 func TestPart2(t *testing.T) {
 	result := Part2(inputTest)
-	expected := 0
+	expected := 145
+	if result != expected {
+		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
+	}
+}
+
+func TestGetBoxes(t *testing.T) {
+	input := []string{"rn=1", "cm-", "qp=3", "cm=2", "qp-", "pc=4", "ot=9", "ab=5", "pc-", "pc=6", "ot=7"}
+	result := getBoxes(input)
+	expected := map[int][]map[string]int{
+		0: {
+			{"rn": 1},
+			{"cm": 2},
+		},
+		3: {
+			{"ot": 7},
+			{"ab": 5},
+			{"pc": 6},
+		},
+	}
+
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Result is incorrect, got:\n%s\nwant:\n%s.", toStringBoxes(result), toStringBoxes(expected))
+	}
+}
+
+func TestCalculatePower(t *testing.T) {
+	boxes := map[int][]map[string]int{
+		0: {
+			{"rn": 1},
+			{"cm": 2},
+		},
+		3: {
+			{"ot": 7},
+			{"ab": 5},
+			{"pc": 6},
+		},
+	}
+
+	result := calculatePower(boxes)
+	expected := 145
+
 	if result != expected {
 		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
 	}
