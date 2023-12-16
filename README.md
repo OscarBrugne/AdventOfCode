@@ -34,3 +34,4 @@ Execution time with :
 | 13  | ** | `0.30ms`  | `0.31ms`  | Using binary number to represent each line (in order to reduce execution time when comparing 2 lines). |
 | 14  | ** | `2.30ms`  | `914ms`   | Using memoization to avoid redundant cycles.                     |
 | 15  | ** | `0.14ms`  | `1.17ms`  |                                                                  |
+| 16  | ** | `5.55ms`  | `1217ms`  | Part 2 in brute force.                                           |
