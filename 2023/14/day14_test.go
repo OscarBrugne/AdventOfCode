@@ -42,9 +42,9 @@ func TestShiftRocksNorth(t *testing.T) {
 		"#....###..",
 		"#OO..#....",
 	}
-	result := buildGrids(input)
+	result := buildGrid(input)
 	shiftRocks(result, North)
-	expected := buildGrids([]string{
+	expected := buildGrid([]string{
 		"OOOO.#.O..",
 		"OO..#....#",
 		"OO..O##..O",

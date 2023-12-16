@@ -39,7 +39,7 @@ var (
 	East  = Coord{1, 0}
 )
 
-func buildGrids(input []string) Grid {
+func buildGrid(input []string) Grid {
 	grid := Grid{
 		Width:  len(input[0]),
 		Height: len(input),
@@ -148,7 +148,7 @@ func calculateLoad(grid Grid) int {
 }
 
 func Part1(input []string) int {
-	grid := buildGrids(input)
+	grid := buildGrid(input)
 	shiftRocks(grid, North)
 
 	return calculateLoad(grid)
@@ -157,7 +157,7 @@ func Part1(input []string) int {
 func Part2(input []string) int {
 	numCycles := 1000000000
 
-	grid := buildGrids(input)
+	grid := buildGrid(input)
 	cache := make(map[int]int)
 
 	for i := 0; i < numCycles; i++ {
