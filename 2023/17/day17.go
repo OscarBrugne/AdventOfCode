@@ -42,6 +42,13 @@ func (coord Coord) isInBounds(grid Grid) bool {
 	return 0 <= coord.X && coord.X < grid.Width && 0 <= coord.Y && coord.Y < grid.Height
 }
 
+func Abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
 func buildGrid(input []string) Grid {
 	grid := Grid{
 		Width:  len(input[0]),
@@ -56,20 +63,6 @@ func buildGrid(input []string) Grid {
 	}
 
 	return grid
-}
-
-func (grid Grid) toString() string {
-	var result string
-
-	for y := 0; y < grid.Height; y++ {
-		for x := 0; x < grid.Width; x++ {
-			coord := Coord{X: x, Y: y}
-			result += string(rune(grid.Data[coord] + '0'))
-		}
-		result += "\n"
-	}
-
-	return result
 }
 
 func (grid Grid) neighbors4(coord Coord) []Coord {
@@ -87,9 +80,9 @@ func (grid Grid) neighbors4(coord Coord) []Coord {
 }
 
 func (grid Grid) dijkstra(start Coord, goal Coord) (map[Coord]Coord, map[Coord]int) {
-	frontier := &utils.CostQueue{}
+	frontier := &utils.PriorityQueue{}
 	heap.Init(frontier)
-	heap.Push(frontier, utils.CostQueueItem{Item: start, Cost: 0})
+	heap.Push(frontier, utils.PriorityQueueItem{Item: start, Priority: 0})
 
 	cameFrom := make(map[Coord]Coord)
 	costSoFar := make(map[Coord]int)
@@ -97,9 +90,9 @@ func (grid Grid) dijkstra(start Coord, goal Coord) (map[Coord]Coord, map[Coord]i
 	costSoFar[start] = 0
 
 	for frontier.Len() > 0 {
-		minItem := heap.Pop(frontier).(utils.CostQueueItem)
+		minItem := heap.Pop(frontier).(utils.PriorityQueueItem)
 		current := minItem.Item.(Coord)
-		currentCost := minItem.Cost
+		currentCost := minItem.Priority
 
 		if current == goal {
 			break
@@ -110,7 +103,7 @@ func (grid Grid) dijkstra(start Coord, goal Coord) (map[Coord]Coord, map[Coord]i
 			if cost, isFound := costSoFar[next]; !isFound || newCost < cost {
 				costSoFar[next] = newCost
 				priority := newCost
-				heap.Push(frontier, utils.CostQueueItem{Item: next, Cost: priority})
+				heap.Push(frontier, utils.PriorityQueueItem{Item: next, Priority: priority})
 				cameFrom[next] = current
 			}
 		}
@@ -119,7 +112,11 @@ func (grid Grid) dijkstra(start Coord, goal Coord) (map[Coord]Coord, map[Coord]i
 	return cameFrom, costSoFar
 }
 
-func (grid Grid) dijkstraConstrained(start Coord, goal Coord, minStraight int, maxStraight int) int {
+func heuristic(c1 Coord, c2 Coord) int {
+	return Abs(c1.X-c2.X) + Abs(c1.Y-c2.Y)
+}
+
+func (grid Grid) AStarConstrained(start Coord, goal Coord, minStraight int, maxStraight int) int {
 	type Info struct {
 		coord       Coord
 		dir         Coord
@@ -127,17 +124,19 @@ func (grid Grid) dijkstraConstrained(start Coord, goal Coord, minStraight int, m
 	}
 	startInfo := Info{coord: start, dir: Coord{}, numStraight: 0}
 
-	frontier := &utils.CostQueue{}
+	frontier := &utils.PriorityQueue{}
 	heap.Init(frontier)
-	heap.Push(frontier, utils.CostQueueItem{Item: startInfo, Cost: 0})
+	heap.Push(frontier, utils.PriorityQueueItem{Item: startInfo, Priority: 0})
 
+	cameFrom := make(map[Info]Info)
 	costSoFar := make(map[Info]int)
+	cameFrom[startInfo] = startInfo
 	costSoFar[startInfo] = 0
 
 	for frontier.Len() > 0 {
-		minItem := heap.Pop(frontier).(utils.CostQueueItem)
+		minItem := heap.Pop(frontier).(utils.PriorityQueueItem)
 		current := minItem.Item.(Info)
-		currentCost := minItem.Cost
+		currentCost := costSoFar[current]
 
 		if current.coord == goal {
 			return currentCost
@@ -166,8 +165,10 @@ func (grid Grid) dijkstraConstrained(start Coord, goal Coord, minStraight int, m
 			isValid := isLowerCost && isValidStraight && isNotOppositeDirection
 			if isValid {
 				costSoFar[nextInfo] = newCost
+				cameFrom[nextInfo] = current
 
-				queueItem := utils.CostQueueItem{Item: nextInfo, Cost: newCost}
+				priority := newCost + heuristic(next, goal)
+				queueItem := utils.PriorityQueueItem{Item: nextInfo, Priority: priority}
 				heap.Push(frontier, queueItem)
 			}
 		}
@@ -176,51 +177,12 @@ func (grid Grid) dijkstraConstrained(start Coord, goal Coord, minStraight int, m
 	return -1
 }
 
-func reconstructPath(cameFrom map[Coord]Coord, start Coord, goal Coord) []Coord {
-	path := []Coord{goal}
-
-	current := goal
-	for current != start {
-		fmt.Println(current)
-		current = cameFrom[current]
-		path = append([]Coord{current}, path...)
-	}
-
-	return path
-}
-
-func buildPathGrid(grid Grid, path []Coord) Grid {
-	pathGrid := Grid{
-		Width:  grid.Width,
-		Height: grid.Height,
-		Data:   grid.Data,
-	}
-
-	for i := 0; i < len(path)-1; i++ {
-		prevCoord := path[i]
-		currCoord := path[i+1]
-		dir := currCoord.Substract(prevCoord)
-		switch dir {
-		case North:
-			pathGrid.Data[currCoord] = '^' - '0'
-		case East:
-			pathGrid.Data[currCoord] = '>' - '0'
-		case South:
-			pathGrid.Data[currCoord] = 'v' - '0'
-		case West:
-			pathGrid.Data[currCoord] = '<' - '0'
-		}
-	}
-
-	return pathGrid
-}
-
 func Part1(input []string) int {
 	grid := buildGrid(input)
 
 	start := Coord{0, 0}
 	goal := Coord{grid.Width - 1, grid.Height - 1}
-	res := grid.dijkstraConstrained(start, goal, 0, 3)
+	res := grid.AStarConstrained(start, goal, 0, 3)
 
 	return res
 }
@@ -230,7 +192,7 @@ func Part2(input []string) int {
 
 	start := Coord{0, 0}
 	goal := Coord{grid.Width - 1, grid.Height - 1}
-	res := grid.dijkstraConstrained(start, goal, 4, 10)
+	res := grid.AStarConstrained(start, goal, 4, 10)
 
 	return res
 }

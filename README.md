@@ -35,4 +35,4 @@ Execution time with :
 | 14  | ** | `2.30ms`  | `914ms`   | Using memoization to avoid redundant cycles.                     |
 | 15  | ** | `0.14ms`  | `1.17ms`  |                                                                  |
 | 16  | ** | `5.55ms`  | `1217ms`  | Part 2 in brute force.                                           |
-| 17  | ** | `342ms`   | `1342ms`  | Using A* algorithm with cost priority queue (CostQueue in utils). |
+| 17  | ** | `519ms`   | `1844ms`  | Using A* algorithm with cost priority queue (CostQueue in utils). |
