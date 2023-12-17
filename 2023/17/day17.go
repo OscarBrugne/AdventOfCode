@@ -158,10 +158,12 @@ func (grid Grid) dijkstraConstrained(start Coord, goal Coord, minStraight int, m
 			newCost := currentCost + grid.Data[next]
 			actualCost, isFound := costSoFar[nextInfo]
 
-			isValid := (!isFound || newCost < actualCost) &&
-				(current.numStraight >= minStraight || newDir == current.dir || current.coord == start) &&
-				(newNumStraight <= maxStraight) &&
-				(newDir != current.dir.opposite())
+			isLowerCost := !isFound || newCost < actualCost
+			isValidStraight := (current.numStraight >= minStraight || newDir == current.dir || current.coord == start) &&
+				(newNumStraight <= maxStraight)
+			isNotOppositeDirection := newDir != current.dir.opposite()
+
+			isValid := isLowerCost && isValidStraight && isNotOppositeDirection
 			if isValid {
 				costSoFar[nextInfo] = newCost
 
