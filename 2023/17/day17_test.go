@@ -28,6 +28,18 @@ func TestPart2(t *testing.T) {
 	}
 }
 
+func TestDijkstra(t *testing.T) {
+	grid := buildGrid(inputTest)
+	start := Coord{0, 0}
+	goal := Coord{grid.Width - 1, grid.Height - 1}
+	_, costSoFar := grid.dijkstra(start, goal)
+	result := costSoFar[goal]
+	expected := 78
+	if result != expected {
+		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
+	}
+}
+
 func BenchmarkPart1(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		Part1(inputDay)

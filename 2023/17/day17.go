@@ -1,6 +1,7 @@
 package main
 
 import (
+	"container/heap"
 	"fmt"
 	"time"
 
@@ -19,7 +20,7 @@ func (c1 Coord) Add(c2 Coord) Coord {
 type Grid struct {
 	Width  int
 	Height int
-	Data   map[Coord]uint8
+	Data   map[Coord]int
 }
 
 var (
@@ -37,12 +38,12 @@ func buildGrid(input []string) Grid {
 	grid := Grid{
 		Width:  len(input[0]),
 		Height: len(input),
-		Data:   make(map[Coord]uint8, len(input)*len(input[0])),
+		Data:   make(map[Coord]int, len(input)*len(input[0])),
 	}
 
 	for y, line := range input {
 		for x, char := range line {
-			grid.Data[Coord{x, y}] = uint8(char - '0')
+			grid.Data[Coord{x, y}] = int(char - '0')
 		}
 	}
 
@@ -55,7 +56,7 @@ func (grid Grid) toString() string {
 	for y := 0; y < grid.Height; y++ {
 		for x := 0; x < grid.Width; x++ {
 			coord := Coord{X: x, Y: y}
-			result += string(grid.Data[coord] + '0')
+			result += string(rune(grid.Data[coord] + '0'))
 		}
 		result += "\n"
 	}
@@ -77,33 +78,47 @@ func (grid Grid) neighbors4(coord Coord) []Coord {
 	return neighbors
 }
 
-func (grid Grid) dijkstra(start Coord, end Coord, maxStraight int) int {
-	visited := map[Coord]int{}
-	frontier := []Coord{start}
+func (grid Grid) dijkstra(start Coord, goal Coord) (map[Coord]Coord, map[Coord]int) {
+	frontier := &utils.CostQueue{}
+	heap.Init(frontier)
+	heap.Push(frontier, utils.CostQueueItem{Item: start, Cost: 0})
 
-	for len(frontier) > 0 {
-		current := frontier[0]
-		frontier = frontier[1:]
+	cameFrom := make(map[Coord]Coord)
+	costSoFar := make(map[Coord]int)
+	cameFrom[start] = start
+	costSoFar[start] = 0
 
-		currentCost := visited[current]
+	for frontier.Len() > 0 {
+		minItem := heap.Pop(frontier).(utils.CostQueueItem)
+		current := minItem.Item.(Coord)
+		currentCost := minItem.Cost
 
-		for _, neighbor := range grid.neighbors4(current) {
-			if _, ok := visited[neighbor]; !ok {
-				visited[neighbor] = currentCost + int(grid.Data[neighbor])
-				frontier = append(frontier, neighbor)
+		if current == goal {
+			break
+		}
+
+		for _, next := range grid.neighbors4(current) {
+			newCost := currentCost + grid.Data[next]
+			if cost, isFound := costSoFar[next]; !isFound || newCost < cost {
+				costSoFar[next] = newCost
+				priority := newCost
+				heap.Push(frontier, utils.CostQueueItem{Item: next, Cost: priority})
+				cameFrom[next] = current
 			}
-
 		}
 	}
 
-	return visited[end]
+	return cameFrom, costSoFar
 }
 
 func Part1(input []string) int {
 	grid := buildGrid(input)
 	fmt.Println(grid.toString())
 
-	res := grid.dijkstra(Coord{0, 0}, Coord{grid.Width - 1, grid.Height - 1}, 3)
+	start := Coord{0, 0}
+	goal := Coord{grid.Width - 1, grid.Height - 1}
+	_, costSoFar := grid.dijkstra(start, goal)
+	res := costSoFar[goal]
 
 	return res
 }
