@@ -80,9 +80,9 @@ func (grid Grid) neighbors4(coord Coord) []Coord {
 }
 
 func (grid Grid) dijkstra(start Coord, goal Coord) (map[Coord]Coord, map[Coord]int) {
-	frontier := &utils.PriorityQueue{}
+	frontier := &utils.IntPriorityQueue{}
 	heap.Init(frontier)
-	heap.Push(frontier, utils.PriorityQueueItem{Item: start, Priority: 0})
+	heap.Push(frontier, utils.IntPriorityQueueItem{Item: start, Priority: 0})
 
 	cameFrom := make(map[Coord]Coord)
 	costSoFar := make(map[Coord]int)
@@ -90,7 +90,7 @@ func (grid Grid) dijkstra(start Coord, goal Coord) (map[Coord]Coord, map[Coord]i
 	costSoFar[start] = 0
 
 	for frontier.Len() > 0 {
-		minItem := heap.Pop(frontier).(utils.PriorityQueueItem)
+		minItem := heap.Pop(frontier).(utils.IntPriorityQueueItem)
 		current := minItem.Item.(Coord)
 		currentCost := minItem.Priority
 
@@ -103,7 +103,7 @@ func (grid Grid) dijkstra(start Coord, goal Coord) (map[Coord]Coord, map[Coord]i
 			if cost, isFound := costSoFar[next]; !isFound || newCost < cost {
 				costSoFar[next] = newCost
 				priority := newCost
-				heap.Push(frontier, utils.PriorityQueueItem{Item: next, Priority: priority})
+				heap.Push(frontier, utils.IntPriorityQueueItem{Item: next, Priority: priority})
 				cameFrom[next] = current
 			}
 		}
@@ -124,9 +124,9 @@ func (grid Grid) AStarConstrained(start Coord, goal Coord, minStraight int, maxS
 	}
 	startInfo := Info{coord: start, dir: Coord{}, numStraight: 0}
 
-	frontier := &utils.PriorityQueue{}
+	frontier := &utils.IntPriorityQueue{}
 	heap.Init(frontier)
-	heap.Push(frontier, utils.PriorityQueueItem{Item: startInfo, Priority: 0})
+	heap.Push(frontier, utils.IntPriorityQueueItem{Item: startInfo, Priority: 0})
 
 	cameFrom := make(map[Info]Info)
 	costSoFar := make(map[Info]int)
@@ -134,7 +134,7 @@ func (grid Grid) AStarConstrained(start Coord, goal Coord, minStraight int, maxS
 	costSoFar[startInfo] = 0
 
 	for frontier.Len() > 0 {
-		minItem := heap.Pop(frontier).(utils.PriorityQueueItem)
+		minItem := heap.Pop(frontier).(utils.IntPriorityQueueItem)
 		current := minItem.Item.(Info)
 		currentCost := costSoFar[current]
 
@@ -168,7 +168,7 @@ func (grid Grid) AStarConstrained(start Coord, goal Coord, minStraight int, maxS
 				cameFrom[nextInfo] = current
 
 				priority := newCost + heuristic(next, goal)
-				queueItem := utils.PriorityQueueItem{Item: nextInfo, Priority: priority}
+				queueItem := utils.IntPriorityQueueItem{Item: nextInfo, Priority: priority}
 				heap.Push(frontier, queueItem)
 			}
 		}
