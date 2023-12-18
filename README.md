@@ -35,4 +35,5 @@ Execution time with :
 | 14  | ** | `2.30ms`  | `914ms`   | Using memoization to avoid redundant cycles.                     |
 | 15  | ** | `0.14ms`  | `1.17ms`  |                                                                  |
 | 16  | ** | `5.55ms`  | `1217ms`  | Part 2 in brute force.                                           |
-| 17  | ** | `519ms`   | `1844ms`  | Using A* algorithm (IntPriorityQueue in utils).                     |
+| 17  | ** | `519ms`   | `1844ms`  | Using A* algorithm (Implementation of IntPriorityQueue in utils). |
+| 18  | ** | `0.11ms`  | `0.13ms`  | Using Shoelace formula and Pick's theorem.                       |
