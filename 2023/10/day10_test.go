@@ -1,7 +1,6 @@
 package main
 
 import (
-	"reflect"
 	"testing"
 
 	"AdventOfCode/utils"
@@ -45,30 +44,6 @@ func TestPart2(t *testing.T) {
 	expected = 10
 	if result != expected {
 		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
-	}
-}
-
-func TestBuildGrid(t *testing.T) {
-	input := []string{
-		"123",
-		"456",
-	}
-	result := buildGrid(input)
-	expected := Grid{
-		Width:  3,
-		Height: 2,
-		Data: map[Coord]byte{
-			{X: 0, Y: 0}: '1',
-			{X: 1, Y: 0}: '2',
-			{X: 2, Y: 0}: '3',
-			{X: 0, Y: 1}: '4',
-			{X: 1, Y: 1}: '5',
-			{X: 2, Y: 1}: '6',
-		},
-	}
-
-	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Result is incorrect, got: %v, want: %v.", result, expected)
 	}
 }
 
