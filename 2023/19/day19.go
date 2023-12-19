@@ -18,28 +18,28 @@ type Rule struct {
 
 type Workflows map[string][]Rule
 
-type Part struct {
-	X int
-	M int
-	A int
-	S int
+type Part map[byte]int
+
+type Interval struct {
+	Start int
+	End   int
 }
+
+type PartInterval map[byte]Interval
 
 func parseInput(input []string) (Workflows, []Part) {
 	workflows := Workflows{}
 	parts := []Part{}
 
-	isWorkflow := true
-	for _, line := range input {
-		if line == "" {
-			isWorkflow = false
-		} else if isWorkflow {
-			workflowName, rules := parseWorkflow(line)
-			workflows[workflowName] = rules
-		} else {
-			part := parsePart(line)
-			parts = append(parts, part)
-		}
+	i := 0
+	for ; input[i] != ""; i++ {
+		workflowName, rules := parseWorkflow(input[i])
+		workflows[workflowName] = rules
+	}
+
+	for i := i + 1; i < len(input); i++ {
+		part := parsePart(input[i])
+		parts = append(parts, part)
 	}
 
 	return workflows, parts
@@ -71,10 +71,17 @@ func parseWorkflow(line string) (string, []Rule) {
 }
 
 func parsePart(line string) Part {
-	var part Part
-	_, err := fmt.Sscanf(line, "{x=%d,m=%d,a=%d,s=%d}", &part.X, &part.M, &part.A, &part.S)
+	var x, m, a, s int
+	_, err := fmt.Sscanf(line, "{x=%d,m=%d,a=%d,s=%d}", &x, &m, &a, &s)
 	if err != nil {
 		panic(err)
+	}
+
+	part := Part{
+		'x': x,
+		'm': m,
+		'a': a,
+		's': s,
 	}
 	return part
 }
@@ -88,20 +95,7 @@ func applyWorkflow(part Part, workflows Workflows, workflowName string) bool {
 	}
 
 	for _, rule := range workflows[workflowName] {
-		var rating int
-		switch rule.Category {
-		case 'x':
-			rating = part.X
-		case 'm':
-			rating = part.M
-		case 'a':
-			rating = part.A
-		case 's':
-			rating = part.S
-		default:
-			rating = 0
-		}
-
+		rating := part[rule.Category]
 		var isValid = true
 		switch rule.Operator {
 		case '>':
@@ -120,6 +114,51 @@ func applyWorkflow(part Part, workflows Workflows, workflowName string) bool {
 	return false
 }
 
+func applyWorkflowInterval(partInterval PartInterval, workflows Workflows, workflowName string) int {
+	if workflowName == "A" {
+		var res = 1
+		for _, interval := range partInterval {
+			res *= interval.End - interval.Start + 1
+		}
+		return res
+	}
+	if workflowName == "R" {
+		return 0
+	}
+
+	res := 0
+	for _, rule := range workflows[workflowName] {
+		ratingInterval := partInterval[rule.Category]
+		var validRatingInterval Interval
+		var invalidRatingInterval Interval
+
+		switch rule.Operator {
+		case '>':
+			invalidRatingInterval = Interval{ratingInterval.Start, rule.Num}
+			validRatingInterval = Interval{rule.Num + 1, ratingInterval.End}
+		case '<':
+			validRatingInterval = Interval{ratingInterval.Start, rule.Num - 1}
+			invalidRatingInterval = Interval{rule.Num, ratingInterval.End}
+		default:
+			validRatingInterval = ratingInterval
+		}
+
+		newPart := PartInterval{}
+		for key, value := range partInterval {
+			if key == rule.Category {
+				newPart[rule.Category] = validRatingInterval
+			} else {
+				newPart[key] = value
+			}
+		}
+		res += applyWorkflowInterval(newPart, workflows, rule.WorkflowName)
+
+		partInterval[rule.Category] = invalidRatingInterval
+	}
+
+	return res
+}
+
 func Part1(input []string) int {
 	startWorflow := "in"
 
@@ -129,7 +168,9 @@ func Part1(input []string) int {
 	for _, part := range parts {
 		isValid := applyWorkflow(part, workflows, startWorflow)
 		if isValid {
-			res += part.X + part.M + part.A + part.S
+			for _, rating := range part {
+				res += rating
+			}
 		}
 	}
 
@@ -137,7 +178,20 @@ func Part1(input []string) int {
 }
 
 func Part2(input []string) int {
-	res := 0
+	startWorflow := "in"
+	minRating := 1
+	maxRating := 4000
+
+	workflows, _ := parseInput(input)
+	partInterval := PartInterval{
+		'x': Interval{minRating, maxRating},
+		'm': Interval{minRating, maxRating},
+		'a': Interval{minRating, maxRating},
+		's': Interval{minRating, maxRating},
+	}
+
+	res := applyWorkflowInterval(partInterval, workflows, startWorflow)
+
 	return res
 }
 

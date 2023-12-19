@@ -37,3 +37,4 @@ Execution time with :
 | 16  | ** | `5.55ms`  | `1217ms`  | Part 2 in brute force. With visualization for part 1.            |
 | 17  | ** | `519ms`   | `1844ms`  | Using A* algorithm (Implementation of IntPriorityQueue in utils). |
 | 18  | ** | `0.11ms`  | `0.13ms`  | Using Shoelace formula and Pick's theorem.                       |
+| 19  | ** | `1.07ms`  | `2.06ms`  | Parsing with `fmt.SscanfUsing`. Using intervals for part 2.      |

@@ -30,10 +30,10 @@ func TestPart2(t *testing.T) {
 
 func TestApplyWorkflow(t *testing.T) {
 	part := Part{
-		X: 787,
-		M: 2655,
-		A: 1222,
-		S: 2876,
+		'x': 787,
+		'm': 2655,
+		'a': 1222,
+		's': 2876,
 	}
 	workflows := Workflows{
 		"in":  []Rule{{'s', '<', 1351, "px"}, {0, 0, 0, "qqz"}},
