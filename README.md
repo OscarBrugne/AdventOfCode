@@ -28,7 +28,7 @@ Execution time with :
 | 7   | ** | `7.35ms`  | `7.59ms`  | Using '*' instead of 'J' to represent jokers.                    |
 | 8   | ** | `0.98ms`  | `3.96ms`  | Using LCM (Least Common Multiple) (doesn't work for general inputs, works here because the cycle length on each path is the same). |
 | 9   | ** | `1.20ms`  | `1.21ms`  | Resolution without recursion.                                    |
-| 10  | ** | `0.00ms`  | `0.00ms`  | Using Breadth First Search (slightly unnecessary here). With visualization for part 2. |
+| 10  | ** | `6.11ms`  | `30.6ms`  | Representation of a pipe by a set of directions. Using ray tracing for part 2. With visualization for part 2. |
 | 11  | ** | `3.89ms`  | `3.80ms`  |                                                                  |
 | 12  | ** | `11.8ms`  | `117ms`   | Using dynamic programming.                                       |
 | 13  | ** | `0.30ms`  | `0.31ms`  | Using binary number to represent each line (in order to reduce execution time when comparing 2 lines). |
