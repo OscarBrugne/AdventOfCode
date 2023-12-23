@@ -38,3 +38,7 @@ Execution time with :
 | 17  | ** | `519ms`   | `1844ms`  | Using A* algorithm (Implementation of IntPriorityQueue in utils). |
 | 18  | ** | `0.11ms`  | `0.13ms`  | Using Shoelace formula and Pick's theorem.                       |
 | 19  | ** | `1.07ms`  | `2.06ms`  | Parsing with `fmt.SscanfUsing`. Using intervals for part 2.      |
+| 20  | *  | `0.00ms`  | `0.00ms`  |                                                                  |
+| 21  | *  | `0.00ms`  | `0.00ms`  |                                                                  |
+| 22  |    | `0.00ms`  | `0.00ms`  |                                                                  |
+| 23  | ** | `17.8ms`  | `1310ms`  | Transforming the grid into a graph (directed for part 1 and undirected for part 2) using Breadth First Search, and then getting the length of the longest simple path using Depth First Search. |
