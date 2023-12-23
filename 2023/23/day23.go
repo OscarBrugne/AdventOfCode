@@ -33,11 +33,6 @@ var (
 	East  = Coord{1, 0}
 )
 
-type Pose struct {
-	coord Coord
-	dir   Coord
-}
-
 const (
 	Empty       byte = '.'
 	Forest      byte = '#'
@@ -46,6 +41,13 @@ const (
 	WestSlopes  byte = '<'
 	EastSlopes  byte = '>'
 )
+
+var SlopeToDir = map[byte]Coord{
+	NorthSlopes: North,
+	SouthSlopes: South,
+	WestSlopes:  West,
+	EastSlopes:  East,
+}
 
 func (grid Grid) toString() string {
 	res := ""
@@ -84,113 +86,73 @@ func parseInput(input []string) Grid {
 	return grid
 }
 
-func getValidDirections(grid Grid, coord Coord, isValidNeighborFunc func(grid Grid, pose Pose) bool) []Coord {
-	directions := []Coord{North, South, West, East}
-	var validDirections []Coord
-
-	for _, dir := range directions {
-		neighbor := Pose{coord.Add(dir), dir}
-		if isValidNeighborFunc(grid, neighbor) {
-			validDirections = append(validDirections, dir)
-		}
-	}
-	return validDirections
-}
-
-func isValidNeighborPart1(grid Grid, pose Pose) bool {
-	if !isInBounds(grid, pose.coord) {
+func isValidNeighbor(grid Grid, coord, dir Coord) bool {
+	if !isInBounds(grid, coord) {
 		return false
 	}
-	if _, ok := grid.data[pose.coord]; !ok {
+	if _, ok := grid.data[coord]; !ok {
 		return true
 	}
-
-	if grid.data[pose.coord] == Forest {
+	if grid.data[coord] == Forest {
 		return false
 	}
-	switch pose.dir {
-	case North:
-		return grid.data[pose.coord] == NorthSlopes
-	case South:
-		return grid.data[pose.coord] == SouthSlopes
-	case West:
-		return grid.data[pose.coord] == WestSlopes
-	case East:
-		return grid.data[pose.coord] == EastSlopes
-	}
-	panic("Unreachable.")
+	return SlopeToDir[grid.data[coord]] == dir
 }
 
-func isValidNeighborPart2(grid Grid, pose Pose) bool {
-	if !isInBounds(grid, pose.coord) {
-		return false
-	}
-	if grid.data[pose.coord] == Forest {
-		return false
-	}
+func neighbors4(grid Grid, coord Coord) []Coord {
+	directions := []Coord{North, South, West, East}
+	validNeighbors := []Coord{}
 
-	return true
-}
-
-func findPathsRecursive(grid Grid, start Pose, endCoord Coord, isValidNeighborFunc func(grid Grid, pose Pose) bool) [][]Coord {
-	nextCoord := start.coord.Add(start.dir)
-	if nextCoord == endCoord {
-		return [][]Coord{{endCoord}}
-	}
-
-	paths := [][]Coord{}
-	dirs := getValidDirections(grid, nextCoord, isValidNeighborFunc)
-
-	for _, dir := range dirs {
-		if dir == start.dir.opposite() {
-			continue
-		}
-
-		neighbor := Pose{nextCoord, dir}
-
-		previousPaths := findPathsRecursive(grid, neighbor, endCoord, isValidNeighborFunc)
-		for _, path := range previousPaths {
-			path = append([]Coord{start.coord}, path...)
-			paths = append(paths, path)
+	for _, dir := range directions {
+		neighbor := coord.Add(dir)
+		if isValidNeighbor(grid, neighbor, dir) {
+			validNeighbors = append(validNeighbors, neighbor)
 		}
 	}
 
-	return paths
+	return validNeighbors
+}
+
+func depthFirstSearch(grid Grid, current Coord, end Coord, seen map[Coord]struct{}) int {
+	if current == end {
+		return 0
+	}
+
+	maxi := -grid.width * grid.height
+
+	seen[current] = struct{}{}
+	for _, neighbor := range neighbors4(grid, current) {
+		if _, ok := seen[neighbor]; !ok {
+			maxi = max(maxi, depthFirstSearch(grid, neighbor, end, seen)+1)
+		}
+	}
+	delete(seen, current)
+
+	return maxi
 }
 
 func Part1(input []string) int {
 	grid := parseInput(input)
 
-	start := Pose{Coord{1, 0}, South}
-	endCoord := Coord{grid.width - 2, grid.height - 1}
+	start := Coord{1, 0}
+	end := Coord{grid.width - 2, grid.height - 1}
 
-	paths := findPathsRecursive(grid, start, endCoord, isValidNeighborPart1)
-
-	maxi := 0
-	for _, path := range paths {
-		if len(path) > maxi {
-			maxi = len(path)
-		}
-	}
-
+	maxi := depthFirstSearch(grid, start, end, map[Coord]struct{}{})
 	return maxi
 }
 
 func Part2(input []string) int {
 	grid := parseInput(input)
-
-	start := Pose{Coord{1, 0}, South}
-	endCoord := Coord{grid.width - 2, grid.height - 1}
-
-	paths := findPathsRecursive(grid, start, endCoord, isValidNeighborPart2)
-
-	maxi := 0
-	for _, path := range paths {
-		if len(path) > maxi {
-			maxi = len(path)
+	for coord, value := range grid.data {
+		if _, ok := SlopeToDir[value]; ok {
+			delete(grid.data, coord)
 		}
 	}
 
+	start := Coord{1, 0}
+	end := Coord{grid.width - 2, grid.height - 1}
+
+	maxi := depthFirstSearch(grid, start, end, map[Coord]struct{}{})
 	return maxi
 }
 
