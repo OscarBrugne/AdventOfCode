@@ -21,11 +21,24 @@ func TestPart1(t *testing.T) {
 }
 
 func TestPart2(t *testing.T) {
-	result := Part2(inputTest)
-	expected := 0
+	result := Part2(inputTest, 10)
+	expected := 50
 	if result != expected {
 		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
 	}
+
+	result = Part2(inputTest, 50)
+	expected = 1594
+	if result != expected {
+		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
+	}
+
+	result = Part2(inputTest, 500)
+	expected = 167004
+	if result != expected {
+		t.Errorf("Result is incorrect, got: %d, want: %d.", result, expected)
+	}
+
 }
 
 func BenchmarkPart1(b *testing.B) {
@@ -36,6 +49,6 @@ func BenchmarkPart1(b *testing.B) {
 
 func BenchmarkPart2(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		Part2(inputDay)
+		Part2(inputDay, 26501365)
 	}
 }
