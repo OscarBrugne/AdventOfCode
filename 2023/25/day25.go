@@ -46,18 +46,17 @@ func parseInput(input []string) Graph {
 	return graph
 }
 
-func breadthFirstSearch(graph Graph, start Vertice, end Vertice) (bool, []Vertice) {
+func breadthFirstSearch(graph Graph, start Vertice, goalFunc func(Vertice) bool) (bool, map[Vertice]Vertice) {
 	frontier := []Vertice{start}
 	reached := map[Vertice]struct{}{start: {}}
-	cameFrom := map[Vertice]Vertice{}
+	cameFrom := map[Vertice]Vertice{start: start}
 
 	for len(frontier) > 0 {
 		current := frontier[0]
 		frontier = frontier[1:]
 
-		if current == end {
-			path := reconstructPath(start, end, cameFrom)
-			return true, path
+		if goalFunc(current) {
+			return true, cameFrom
 		}
 
 		for next := range graph[current] {
@@ -69,7 +68,7 @@ func breadthFirstSearch(graph Graph, start Vertice, end Vertice) (bool, []Vertic
 		}
 	}
 
-	return false, []Vertice{}
+	return false, cameFrom
 }
 
 func reconstructPath(start Vertice, end Vertice, cameFrom map[Vertice]Vertice) []Vertice {
@@ -99,36 +98,40 @@ func Part1(input []string) int {
 
 	graph := parseInput(input)
 
-	var start Vertice
+	var source Vertice
 	for vertice := range graph {
-		start = vertice
+		source = vertice
 		break
 	}
 
-	group1 := []Vertice{start}
-	group2 := []Vertice{}
-
+	var separteGraph Graph
 	for end := range graph {
-		if start == end {
+		if source == end {
 			continue
 		}
+
 		newGraph := copyGraph(graph)
 		for i := 0; i < minCut; i++ {
-			_, path := breadthFirstSearch(newGraph, start, end)
+			_, cameFrom := breadthFirstSearch(newGraph, source, func(vertice Vertice) bool { return vertice == end })
+			path := reconstructPath(source, end, cameFrom)
 			for j := 0; j < len(path)-1; j++ {
 				edge := Edge{path[j], path[j+1], 1}
 				delete(newGraph[path[j]], edge)
 			}
 		}
-		isValid, _ := breadthFirstSearch(newGraph, start, end)
-		if isValid {
-			group1 = append(group1, end)
-		} else {
-			group2 = append(group2, end)
+
+		isValid, _ := breadthFirstSearch(newGraph, source, func(vertice Vertice) bool { return vertice == end })
+		if !isValid {
+			separteGraph = newGraph
+			break
 		}
 	}
 
-	return len(group1) * len(group2)
+	_, cameFrom := breadthFirstSearch(separteGraph, source, func(vertice Vertice) bool { return false })
+	lenght1 := len(cameFrom)
+	lenght2 := len(separteGraph) - lenght1
+
+	return lenght1 * lenght2
 }
 
 func main() {
