@@ -42,3 +42,5 @@ Execution time with :
 | 21  | *  | `0.00ms`  | `0.00ms`  |                                                                  |
 | 22  |    | `0.00ms`  | `0.00ms`  |                                                                  |
 | 23  | ** | `17.8ms`  | `1310ms`  | Transforming the grid into a graph (directed for part 1 and undirected for part 2) using Breadth First Search, and then getting the length of the longest simple path using Depth First Search. |
+| 24  | *  | `0.00ms`  | `0.00ms`  |                                                                  |
+| 25  | *  | `12650ms` |           | Calculating the shortest path between 2 vertices (with BFS) and delete the edges of this path, and repeating this 4 times. The cardinality of the minimum cut is 3 according to the puzzle. Two vertices belong to the same group if there are 4 different paths connecting them. |
