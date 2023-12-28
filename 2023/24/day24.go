@@ -45,7 +45,6 @@ func isIntersecting2D(p1, p2 Point) (bool, Coord, float64, float64) {
 		z: 0,
 	}
 	return true, coord, t1, t2
-
 }
 
 func Part1(input []string, min float64, max float64) int {
@@ -65,6 +64,22 @@ func Part1(input []string, min float64, max float64) int {
 }
 
 func Part2(input []string) int {
+	// Unknowns :
+	// x0, y0, z0, vx0, vy0, vz0, t1, t2, t3
+
+	// Equations :
+	// x0 + t1 * vx0 - t1 * vx1 == x1
+	// y0 + t1 * vy0 - t1 * vy1 == y1
+	// z0 + t1 * vz0 - t1 * vz1 == z1
+
+	// x0 + t2 * vx0 - t2 * vx2 == x2
+	// y0 + t2 * vy0 - t2 * vy2 == y2
+	// z0 + t2 * vz0 - t2 * vz2 == z2
+
+	// x0 + t3 * vx0 - t3 * vx3 == x3
+	// y0 + t3 * vy0 - t3 * vy3 == y3
+	// z0 + t3 * vz0 - t3 * vz3 == z3
+
 	res := 0
 	return res
 }

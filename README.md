@@ -38,9 +38,9 @@ Execution time with :
 | 17  | ** | `519ms`   | `1844ms`  | Using A* algorithm (Implementation of IntPriorityQueue in utils). |
 | 18  | ** | `0.11ms`  | `0.13ms`  | Using Shoelace formula and Pick's theorem.                       |
 | 19  | ** | `1.07ms`  | `2.06ms`  | Parsing with `fmt.SscanfUsing`. Using intervals for part 2.      |
-| 20  | *  | `0.00ms`  | `0.00ms`  | `TODO` (Part 2 not yet started)                                  |
-| 21  | *  | `0.00ms`  | `0.00ms`  | `TODO` (Reflection done, implementation to be done)              |
-| 22  |    | `12.7ms`  | `118ms`   | Settling bricks from bottom to top, knowing the bricks directly below and above it. |
+| 20  | *  | `0.00ms`  | `0.00ms`  | `TODO` (Part 2 not yet started).                                 |
+| 21  | *  | `0.00ms`  | `0.00ms`  | `TODO` (Reflection done, implementation to be done).             |
+| 22  | ** | `12.7ms`  | `118ms`   | Settling bricks from bottom to top, knowing the bricks directly below and above it. |
 | 23  | ** | `17.8ms`  | `1310ms`  | Transforming the grid into a graph (directed for part 1 and undirected for part 2) using Breadth First Search, and then getting the length of the longest simple path using Depth First Search. |
-| 24  | *  | `0.00ms`  | `0.00ms`  | `TODO` (Part 2 : system of 6 equations with 6 unknowns found, I have to put it in matrix form and look for a solver in Go) |
+| 24  | *  | `0.00ms`  | `0.00ms`  | `TODO` (Part 2 : nonlinear system of 9 equations with 9 unknowns found, look for a solver in Go or linearize the system). |
 | 25  | *  | `21.5ms`  |           | Separating the graph into 2 groups by calculating the shortest path between 2 vertices (with BFS), removing edges from this path, and repeating this 3 times (The minimum cut cardinality is 3 according to the puzzle). If there is no 4th path, the 2 vertices are in a different group and the new graph is cut, otherwise start again with a new vertex. Then finding the vertices belonging to the first group using BFS. |
